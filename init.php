@@ -6,16 +6,45 @@ $db = new PDO('mysql:host=localhost;dbname=greenloop;charset=utf8mb4', 'root', '
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-define('UP', strpos($_SERVER['SCRIPT_NAME'], '/admin/') === false ? '' : '../');   // ทางกลับโฟลเดอร์หลัก
-const POINT_PER_KG = 20;      // แต้มต่อขยะ 1 กก. ที่รีไซเคิลสำเร็จ
-const TREE_KG = 9.5;          // kgCO2e ที่ต้นไม้ 1 ต้นดูดซับต่อปี
-const LEVELS = [0 => '🌰 เมล็ดพันธุ์', 100 => '🌱 ต้นกล้า', 300 => '🌳 ต้นไม้', 600 => '🌍 Net Zero Hero'];
-const STATUS = ['active' => 'ใช้งานได้', 'suspended' => 'ระงับสิทธิ์', 'pending' => 'รอตรวจรับ', 'done' => 'สำเร็จ', 'rejected' => 'ปฏิเสธ'];
-const QUESTIONS = ['ชื่อสัตว์เลี้ยงตัวแรกของคุณ', 'ชื่อโรงเรียนประถมของคุณ', 'อาหารจานโปรดของคุณ', 'จังหวัดที่คุณเกิด'];   // คำถามกันลืมรหัสผ่าน
-const LIVE = "IF(start_at > NOW(), 'รอเผยแพร่', IF(end_at <= NOW(), 'หมดเวลา', 'กำลังแสดง'))";
-const MENU_USER = ['recycle.php' => '♻️ รีไซเคิล', 'points.php' => '🏆 แต้มของฉัน', 'coupons.php' => '🎟️ แลกคูปอง', 'profile.php' => '👤 โปรไฟล์'];
-const MENU_ADMIN = ['admin/index.php' => 'Dashboard', 'admin/users.php' => 'สมาชิก', 'admin/contents.php' => 'เนื้อหา', 'admin/green.php' => 'ตั้งค่า Green',
-    'admin/recycles.php' => 'รีไซเคิล', 'admin/coupons.php' => 'คูปอง', 'admin/reports.php' => 'รายงาน'];
+define('UP', strpos($_SERVER['SCRIPT_NAME'], '/admin/') === false ? '' : '../');
+const POINT_PER_KG = 20;
+const TREE_KG = 9.5;
+const LEVELS = [
+0 => '🌰 เมล็ดพันธุ์', 
+100 => '🌱 ต้นกล้า', 
+300 => '🌳 ต้นไม้', 
+600 => '🌍 Net Zero Hero'];
+
+const STATUS = [
+'active' => 'ใช้งานได้', 
+'suspended' => 'ระงับสิทธิ์', 
+'pending' => 'รอตรวจรับ', 
+'done' => 'สำเร็จ', 
+'rejected' => 'ปฏิเสธ'];
+
+const QUESTIONS = ['ชื่อสัตว์เลี้ยงตัวแรกของคุณ',
+'ชื่อโรงเรียนประถมของคุณ', 
+'อาหารจานโปรดของคุณ', 
+'จังหวัดที่คุณเกิด'];
+
+const LIVE = "IF(start_at > NOW(), 
+'รอเผยแพร่', IF(end_at <= NOW(), 
+'หมดเวลา', 'กำลังแสดง'))";
+const MENU_USER = 
+['
+recycle.php' => '♻️ รีไซเคิล', 
+'points.php' => '🏆 แต้มของฉัน', 
+'coupons.php' => '🎟️ แลกคูปอง', 
+'profile.php' => '👤 โปรไฟล์'
+];
+const MENU_ADMIN = [
+'admin/index.php' => 'Dashboard', 
+'admin/users.php' => 'สมาชิก',
+'admin/contents.php' => 'เนื้อหา', 
+'admin/green.php' => 'ตั้งค่า Green',
+'admin/recycles.php' => 'รีไซเคิล', 
+'admin/coupons.php' => 'คูปอง', 
+'admin/reports.php' => 'รายงาน'];
 
 // ---------- ฐานข้อมูล ----------
 function q($sql, $p = [])
