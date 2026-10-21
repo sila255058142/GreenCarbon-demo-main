@@ -130,11 +130,12 @@ head('แลกคูปอง');
 <h5 class="page-section-title mt-4">📦 ใช้คูปองรับของ</h5>
 <p class="text-muted">กรอกรหัสคูปองที่อนุมัติแล้ว พร้อมข้อมูลจัดส่ง รหัสใช้ได้ครั้งเดียวก่อนวันหมดอายุ</p>
 <form method="post" class="card claim-card mb-4">
-  <aside class="claim-aside">
-    <span class="claim-aside-icon" aria-hidden="true">🎟️</span>
-    <h2>ใกล้ได้รับรางวัลแล้ว</h2>
-    <p>ใช้รหัสคูปองที่ได้รับอนุมัติ กรอกข้อมูลจัดส่งให้ครบ แล้วรอรับของรางวัลได้เลย</p>
-  </aside>
+  <aside class="claim-aside p-3 pb-0">
+  <span class="claim-aside-icon fs-2" aria-hidden="true">🎟️</span>
+  <h2 class="h5 mt-2 mb-1">ใกล้ได้รับรางวัลแล้ว</h2>
+  <p class="small text-muted mb-0">ใช้รหัสคูปองที่ได้รับอนุมัติ กรอกข้อมูลจัดส่งให้ครบ แล้วรอรับของรางวัลได้เลย</p>
+</aside>
+<div class="claim-fields p-3">
   <div class="claim-fields">
     <label class="form-label" for="claim-code">รหัสคูปอง</label>
     <input class="form-control mb-2" id="claim-code" name="coupon_code" required maxlength="32" autocomplete="off">
