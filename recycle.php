@@ -30,44 +30,41 @@ $saved = val("SELECT COALESCE(SUM(co2_kg), 0) FROM recycles WHERE user_id = ? AN
 
 head('รีไซเคิล');
 ?>
-<div class="hero page-hero recycle-hero mb-4">
-  <div class="page-hero-copy">
-    <span class="page-hero-eyebrow">RECYCLE &amp; MAKE A DIFFERENCE</span>
+<div class="hero mb-4 d-flex justify-content-between align-items-center">
+  <div>
+    <span class="small fw-bold text-uppercase opacity-75">Recycle &amp; Make a Difference</span>
     <p class="lead mb-1">🌱 คาร์บอนที่ลดได้ในปี <?= $year + 543 ?></p>
     <div class="big"><?= number_format($saved, 2) ?> <span>kgCO₂e</span></div>
     <p class="mb-0">ส่งต่อขยะอิเล็กทรอนิกส์ให้กลับมาใช้ประโยชน์ และช่วยลดผลกระทบต่อสิ่งแวดล้อม</p>
   </div>
-  <div class="page-hero-art recycle-hero-art" aria-hidden="true">
-    <span class="hero-art-ring"></span>
-    <span class="hero-art-icon">📦</span>
-    <span class="hero-art-spark">✦</span>
-    <span class="hero-art-leaf">🌿</span>
-  </div>
+  <div class="d-none d-md-block fs-1 text-nowrap" aria-hidden="true">📦 ✦ 🌿</div>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="card recycle-form-card mb-4">
-  <aside class="recycle-form-aside">
-    <span class="form-aside-icon" aria-hidden="true">♻️</span>
-    <span class="page-hero-eyebrow">GIVE IT A NEW LIFE</span>
-    <h2>เริ่มต้นจากของชิ้นเล็ก ๆ</h2>
-    <p>แจ้งข้อมูลอุปกรณ์และน้ำหนักโดยประมาณ ทีมงานจะตรวจสอบก่อนยืนยันผลการรีไซเคิล</p>
-    <div class="form-aside-note">✨ รับ <?= POINT_PER_KG ?> แต้มต่อขยะที่รีไซเคิลสำเร็จ 1 กก.</div>
-  </aside>
-  <div class="recycle-form-fields">
-    <h5 id="recycle-form">แจ้งรายการรีไซเคิล</h5>
-    <p class="text-muted mb-3">กรอกข้อมูลอุปกรณ์ที่ต้องการส่งรีไซเคิล</p>
-    <label class="form-label mt-2">หมวดอุปกรณ์</label>
-    <select class="form-select" id="recycle-category" name="category_id" required>
-      <option value="">เลือกหมวด</option>
-      <?php foreach ($cats as $c): ?>
-        <option value="<?= $c['id'] ?>" data-factor="<?= e($c['co2_per_kg']) ?>"><?= e($c['name']) ?> (ลด <?= $c['co2_per_kg'] ?> kgCO₂e ต่อ กก.)</option>
-      <?php endforeach; ?>
-    </select>
-    <?php input('รายการ', 'item_name', 'text', '', 'required minlength="3"') ?>
-    <?php input('น้ำหนักโดยประมาณ (กก.)', 'weight_kg', 'number', '', 'required min="0.01" step="0.01" id="recycle-weight"') ?>
-    <div id="recycle-estimate" class="form-text mt-2" aria-live="polite">เลือกหมวดและกรอกน้ำหนักเพื่อดูปริมาณคาร์บอนที่คาดว่าจะลดได้</div>
-    <?php input('รูปสินค้าที่จะรีไซเคิล (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
-    <button class="btn btn-success mt-3">ส่งคำขอ</button>
+<form method="post" enctype="multipart/form-data" class="card border-0 shadow-sm overflow-hidden mb-4">
+  <div class="row g-0">
+        <aside class="col-md-4 p-4 d-flex flex-column justify-content-center" style="background:#e8f5ee">
+      <div class="fs-1 mb-2" aria-hidden="true">♻️</div>
+      <span class="small fw-bold text-uppercase mb-1" style="color:#198754">Give it a new life</span>
+      <h2 class="h4 fw-bold" style="color:#14532d">เริ่มต้นจากของชิ้นเล็ก ๆ</h2>
+      <p style="color:#3f6b52">แจ้งข้อมูลอุปกรณ์และน้ำหนักโดยประมาณ ทีมงานจะตรวจสอบก่อนยืนยันผลการรีไซเคิล</p>
+      <div class="rounded-3 px-3 py-2 bg-white fw-semibold" style="color:#14532d; border:1px solid #b7dfc7">✨ รับ <?= POINT_PER_KG ?> แต้มต่อขยะที่รีไซเคิลสำเร็จ 1 กก.</div>
+    </aside>
+    <div class="col-md-8 p-4">
+      <h5 class="fw-bold mb-1" id="recycle-form">แจ้งรายการรีไซเคิล</h5>
+      <p class="text-muted mb-3">กรอกข้อมูลอุปกรณ์ที่ต้องการส่งรีไซเคิล</p>
+      <label class="form-label">หมวดอุปกรณ์</label>
+      <select class="form-select mb-3" id="recycle-category" name="category_id" required>
+        <option value="">เลือกหมวด</option>
+        <?php foreach ($cats as $c): ?>
+          <option value="<?= $c['id'] ?>" data-factor="<?= e($c['co2_per_kg']) ?>"><?= e($c['name']) ?> (ลด <?= $c['co2_per_kg'] ?> kgCO₂e ต่อ กก.)</option>
+        <?php endforeach; ?>
+      </select>
+      <?php input('รายการ', 'item_name', 'text', '', 'required minlength="3"') ?>
+      <?php input('น้ำหนักโดยประมาณ (กก.)', 'weight_kg', 'number', '', 'required min="0.01" step="0.01" id="recycle-weight"') ?>
+      <div id="recycle-estimate" class="form-text text-success mb-3" aria-live="polite">เลือกหมวดและกรอกน้ำหนักเพื่อดูปริมาณคาร์บอนที่คาดว่าจะลดได้</div>
+      <?php input('รูปสินค้าที่จะรีไซเคิล (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
+      <button class="btn btn-success mt-3 px-4">ส่งคำขอ</button>
+    </div>
   </div>
 </form>
 <script>
@@ -88,7 +85,7 @@ head('รีไซเคิล');
   recycleWeight.addEventListener('input', updateRecycleEstimate);
 </script>
 
-<h5 class="page-section-title">คำขอของฉัน</h5>
+<h5 class="fw-bold mb-3">คำขอของฉัน</h5>
 <?php search('<select class="form-select w-auto" name="sort"><option value="">ใหม่ล่าสุด</option><option value="weight"' . (g('sort') == 'weight' ? ' selected' : '') . '>น้ำหนักมากสุด</option></select>') ?>
 <div class="table-responsive">
 <table class="table table-striped bg-white align-middle">
