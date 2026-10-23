@@ -43,6 +43,7 @@ function all($sql, $p = []) { return q($sql, $p)->fetchAll(); }
 function one($sql, $p = []) { return q($sql, $p)->fetch(); }
 // ใช้ใน: coupons.php, index.php, recycle.php และ admin/coupons.php, admin/green.php, admin/index.php
 function val($sql, $p = []) { return q($sql, $p)->fetchColumn(); }
+function head($title, $show = true)
 {
     $u = me();
     $menu = !$u ? [] : ($u['role'] == 'admin' ? MENU_ADMIN : MENU_USER);
@@ -174,4 +175,3 @@ function chart($title, $type, $labels, $data)
 }
 
 // ใช้ใน: coupons.php, forgot.php, index.php, issue.php, login.php, notifications.php, points.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
-function head($title, $show = true)
