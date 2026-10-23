@@ -1,35 +1,207 @@
 /* หน้าตาของ GreenLoop: โทนสีเขียว มุมโค้ง และเงาบาง ๆ */
-:root { --green: #176b43; --deep-green: #0f5132; --soft-green: #e8f5eb; }
-body { background: #f4f8f5; color: #294536; font-family: "Leelawadee UI", Tahoma, sans-serif; }
-.navbar { background: linear-gradient(90deg, var(--deep-green), #1fa367); box-shadow: 0 3px 14px #0f513226; }
-.navbar-brand { font-weight: 700; }
-.btn { border-radius: 50px; padding-inline: 18px; transition: .2s; }
-.btn:hover { transform: translateY(-1px); }
-.card, .impact-card { border: 0; border-radius: 16px; box-shadow: 0 3px 16px #174b3112; }
-.hero { padding: clamp(24px, 5vw, 48px) 32px; border-radius: 24px; color: #fff; background: linear-gradient(135deg, var(--deep-green), #2fb574); }
-.hero h1, .home-section-heading h2 { font-weight: 700; }
-.hero .lead { max-width: 760px; }
-.box { border-bottom: 4px solid #1fa367; transition: transform .2s; }
-.box:hover, .journey-card:hover, .article-card:hover { transform: translateY(-4px); }
-.big { font-size: 44px; line-height: 1.2; }
-.table { overflow: hidden; border-radius: 16px; }
-canvas { max-height: 320px; }
-.pic { display: inline-block; object-fit: cover; border-radius: 50%; background: #d7eadf; text-align: center; vertical-align: middle; }
-.bubble { max-width: 75%; padding: 8px 14px; border-radius: 16px; }
-.home-section-heading { margin: 2.5rem 0 1.25rem; }
-.home-section-heading h2, .article-feature h3, .article-card h4 { color: var(--deep-green); }
-.impact-card, .journey-card, .article-card { height: 100%; padding: 20px; background: #fff; transition: .2s; }
-.impact-icon, .journey-icon, .article-card-icon { font-size: 1.7rem; }
-.impact-card strong { display: block; color: var(--green); font-size: 1.8rem; }
-.impact-card-highlight { background: var(--soft-green); }
-.journey-card { color: inherit; }
-.home-campaign { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 48px; padding: clamp(24px, 5vw, 44px); border-radius: 24px; background: linear-gradient(115deg, var(--deep-green), #238b55); color: #fff; }
-.campaign-copy { max-width: 720px; }
-.campaign-copy h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
-.articles-heading, .article-toolbar, .article-card-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.article-count, .article-label { padding: 7px 12px; border-radius: 50px; background: var(--soft-green); color: var(--green); font-weight: 700; }
-.article-feature { display: grid; grid-template-columns: minmax(200px, .8fr) 1.2fr; overflow: hidden; }
-.article-art { display: grid; min-height: 220px; place-items: center; background: linear-gradient(140deg, #dff4e5, #8bd2a5); }
-.article-art-icon { font-size: 54px; }
-.article-feature-content { padding: clamp(20px, 4vw, 40px); }
-@media (max-width: 600px) { .article-feature { grid-template-columns: 1fr; } .home-campaign { align-items: flex-start; flex-direction: column; } .articles-heading { align-items: flex-start; } }
+:root {
+  --green: #176b43;
+  --deep-green: #0f5132;
+  --soft-green: #e8f5eb;
+}
+
+body {
+  background: #f4f8f5;
+  color: #294536;
+  font-family: "Leelawadee UI", Tahoma, sans-serif;
+}
+
+.navbar {
+  background: linear-gradient(90deg, var(--deep-green), #1fa367);
+  box-shadow: 0 3px 14px #0f513226;
+}
+
+.navbar-brand {
+  font-weight: 700;
+}
+
+.btn {
+  border-radius: 50px;
+  padding-inline: 18px;
+  transition: .2s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.card,
+.impact-card {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 3px 16px #174b3112;
+}
+
+.hero {
+  padding: clamp(24px, 5vw, 48px) 32px;
+  border-radius: 24px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--deep-green), #2fb574);
+}
+
+.hero h1,
+.home-section-heading h2 {
+  font-weight: 700;
+}
+
+.hero .lead {
+  max-width: 760px;
+}
+
+.box {
+  border-bottom: 4px solid #1fa367;
+  transition: transform .2s;
+}
+
+.box:hover,
+.journey-card:hover,
+.article-card:hover {
+  transform: translateY(-4px);
+}
+
+.big {
+  font-size: 44px;
+  line-height: 1.2;
+}
+
+.table {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+canvas {
+  max-height: 320px;
+}
+
+.pic {
+  display: inline-block;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #d7eadf;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.bubble {
+  max-width: 75%;
+  padding: 8px 14px;
+  border-radius: 16px;
+}
+
+.home-section-heading {
+  margin: 2.5rem 0 1.25rem;
+}
+
+.home-section-heading h2,
+.article-feature h3,
+.article-card h4 {
+  color: var(--deep-green);
+}
+
+.impact-card,
+.journey-card,
+.article-card {
+  height: 100%;
+  padding: 20px;
+  background: #fff;
+  transition: .2s;
+}
+
+.impact-icon,
+.journey-icon,
+.article-card-icon {
+  font-size: 1.7rem;
+}
+
+.impact-card strong {
+  display: block;
+  color: var(--green);
+  font-size: 1.8rem;
+}
+
+.impact-card-highlight {
+  background: var(--soft-green);
+}
+
+.journey-card {
+  color: inherit;
+}
+
+.home-campaign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 48px;
+  padding: clamp(24px, 5vw, 44px);
+  border-radius: 24px;
+  background: linear-gradient(115deg, var(--deep-green), #238b55);
+  color: #fff;
+}
+
+.campaign-copy {
+  max-width: 720px;
+}
+
+.campaign-copy h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.articles-heading,
+.article-toolbar,
+.article-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.article-count,
+.article-label {
+  padding: 7px 12px;
+  border-radius: 50px;
+  background: var(--soft-green);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.article-feature {
+  display: grid;
+  grid-template-columns: minmax(200px, .8fr) 1.2fr;
+  overflow: hidden;
+}
+
+.article-art {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  background: linear-gradient(140deg, #dff4e5, #8bd2a5);
+}
+
+.article-art-icon {
+  font-size: 54px;
+}
+
+.article-feature-content {
+  padding: clamp(20px, 4vw, 40px);
+}
+
+@media (max-width: 600px) {
+  .article-feature {
+    grid-template-columns: 1fr;
+  }
+
+  .home-campaign {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .articles-heading {
+    align-items: flex-start;
+  }
+}
