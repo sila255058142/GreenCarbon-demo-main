@@ -56,12 +56,4 @@ function head($title, $show = true) {
 <?php
 }
 
-function foot()
-{
-    echo '</main>'
-        . '<footer class="text-center text-muted small py-4 d-print-none">'
-        . '♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน'
-        . '</footer>'
-        . '<script src="' . UP . 'assets/bootstrap.bundle.min.js"></script>'
-        . '</body></html>';
-}
+function foot() { echo '</main><footer class="text-center text-muted small py-4 d-print-none">♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน</footer><script src="' . UP . 'assets/bootstrap.bundle.min.js"></script></body></html>'; }
