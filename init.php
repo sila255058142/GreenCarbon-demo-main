@@ -43,28 +43,6 @@ function all($sql, $p = []) { return q($sql, $p)->fetchAll(); }
 function one($sql, $p = []) { return q($sql, $p)->fetch(); }
 // ใช้ใน: coupons.php, index.php, recycle.php และ admin/coupons.php, admin/green.php, admin/index.php
 function val($sql, $p = []) { return q($sql, $p)->fetchColumn(); }
-function head($title, $show = true)
-{
-    $u = me();
-    $menu = !$u ? [] : ($u['role'] == 'admin' ? MENU_ADMIN : MENU_USER);
-?>
-<!doctype html><html lang="th">
-    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= $title ?> | GreenLoop</title><link rel="stylesheet" href="<?= UP ?>assets/bootstrap.min.css"><link rel="stylesheet" href="<?= UP ?>assets/style.css">
-<script src="<?= UP ?>assets/chart.umd.js"></script>
-    </head>
-    <body>
-<nav class="navbar navbar-expand-lg navbar-dark d-print-none"><div class="container"><a class="navbar-brand" href="<?= UP ?>index.php">♻ GreenLoop</a>
-<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="menu"><div class="navbar-nav me-auto">
-<?php foreach ($menu as $file => $name): ?><a class="nav-link" href="<?= UP . $file ?>"><?= $name ?></a><?php endforeach; ?>
-</div><div class="navbar-nav align-items-lg-center">
-<?php if (!$u): ?><a class="nav-link" href="<?= UP ?>login.php">เข้าสู่ระบบ</a><a class="nav-link" href="<?= UP ?>register.php">สมัครสมาชิก</a><?php else: ?>
-<a class="nav-link" href="<?= UP ?>notifications.php">🔔 <span class="badge bg-danger"><?= val('SELECT COUNT(*) FROM notifications WHERE is_read = 0 AND user_id <=> ?', [inbox()]) ?></span></a><span class="navbar-text text-white mx-2"><?= pic($u['avatar'], 28) ?> <?= e($u['name']) ?></span><a class="nav-link" href="<?= UP ?>logout.php">ออกจากระบบ</a>
-<?php endif; ?></div></div></div></nav>
-<main class="container py-4">
-<?php if (isset($_SESSION['flash'])): ?><div class="alert alert-<?= $_SESSION['flash'][1] ?>"><?= e($_SESSION['flash'][0]) ?></div><?php unset($_SESSION['flash']); endif; if ($show): ?><h3 class="mb-3"><?= $title ?></h3><?php endif; ?>
-<?php
-}
 // ใช้ใน: coupons.php, forgot.php, index.php, issue.php, login.php, notifications.php, points.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function foot() { echo '</main><footer class="text-center text-muted small py-4 d-print-none">♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน</footer><script src="' . UP . 'assets/bootstrap.bundle.min.js"></script></body></html>'; }
 
@@ -173,5 +151,7 @@ function chart($title, $type, $labels, $data)
     static $n = 0; $id = 'c' . ++$n;
     echo "<div class='card card-body mb-3'><h6>$title</h6><canvas id='$id'></canvas></div><script>new Chart(document.getElementById('$id'), {type: '$type', data: {labels: " . json_encode($labels) . ", datasets: [{label: '$title', data: " . json_encode($data, JSON_NUMERIC_CHECK) . "}]}});</script>";
 }
+
+require_once __DIR__ . '/header.php';
 
 // ใช้ใน: coupons.php, forgot.php, index.php, issue.php, login.php, notifications.php, points.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
