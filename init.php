@@ -43,9 +43,6 @@ function all($sql, $p = []) { return q($sql, $p)->fetchAll(); }
 function one($sql, $p = []) { return q($sql, $p)->fetch(); }
 // ใช้ใน: coupons.php, index.php, recycle.php และ admin/coupons.php, admin/green.php, admin/index.php
 function val($sql, $p = []) { return q($sql, $p)->fetchColumn(); }
-// ใช้ใน: coupons.php, forgot.php, index.php, issue.php, login.php, notifications.php, points.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
-function foot() { echo '</main><footer class="text-center text-muted small py-4 d-print-none">♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน</footer><script src="' . UP . 'assets/bootstrap.bundle.min.js"></script></body></html>'; }
-
 // ตัวช่วยใช้ร่วมกัน
 // ใช้ใน: coupons.php, index.php, notifications.php, points.php, recycle.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function e($s) { return htmlspecialchars($s ?? '', ENT_QUOTES); }
