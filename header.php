@@ -16,7 +16,7 @@ function head($title, $show = true) {
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark d-print-none">
         <div class="container">
-            <a class="navbar-brand" href="<?= UP ?>index.php">♻ GreenLoop</a>
+            <a class="navbar-brand fw-bold" href="<?= UP ?>index.php">♻ GreenLoop</a>
             <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
                 <span class="navbar-toggler-icon"></span>
             </button>

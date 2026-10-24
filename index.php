@@ -31,41 +31,41 @@ head('หน้าแรก', false);
 </div>
 
 <section class="home-impact-section">
-  <div class="home-section-heading">
+  <div class="home-section-heading mt-5 mb-4">
     <span class="section-eyebrow">SMALL ACTION, BIG IMPACT</span>
     <h2>ผลกระทบที่เราสร้างร่วมกัน 🌱</h2>
     <p>ทุกชิ้นที่ส่งเข้าระบบ คืออีกหนึ่งก้าวของการจัดการ E-Waste อย่างรับผิดชอบ</p>
   </div>
   <div class="row g-3 home-impact-grid">
     <div class="col-6 col-xl-3">
-      <div class="impact-card">
-        <span class="impact-icon">👥</span>
+      <div class="impact-card h-100 p-4 bg-white">
+        <span class="impact-icon fs-3">👥</span>
         <span class="impact-label">คนที่ร่วมดูแลโลก</span>
-        <strong><?= number_format($memberCount) ?></strong>
+        <strong class="d-block text-success fs-3"><?= number_format($memberCount) ?></strong>
         <small>สมาชิก GreenLoop</small>
       </div>
     </div>
     <div class="col-6 col-xl-3">
-      <div class="impact-card">
-        <span class="impact-icon">♻️</span>
+      <div class="impact-card h-100 p-4 bg-white">
+        <span class="impact-icon fs-3">♻️</span>
         <span class="impact-label">ส่งต่ออย่างถูกวิธี</span>
-        <strong><?= number_format($sum['n']) ?></strong>
+        <strong class="d-block text-success fs-3"><?= number_format($sum['n']) ?></strong>
         <small>รายการที่รีไซเคิลสำเร็จ</small>
       </div>
     </div>
     <div class="col-6 col-xl-3">
-      <div class="impact-card">
-        <span class="impact-icon">📦</span>
+      <div class="impact-card h-100 p-4 bg-white">
+        <span class="impact-icon fs-3">📦</span>
         <span class="impact-label">ขยะที่ไม่ถูกทิ้งเปล่า</span>
-        <strong><?= number_format((float) $sum['kg'], 2) ?></strong>
+        <strong class="d-block text-success fs-3"><?= number_format((float) $sum['kg'], 2) ?></strong>
         <small>กิโลกรัม E-Waste</small>
       </div>
     </div>
     <div class="col-6 col-xl-3">
-      <div class="impact-card impact-card-highlight">
-        <span class="impact-icon">🌍</span>
+      <div class="impact-card impact-card-highlight h-100 p-4">
+        <span class="impact-icon fs-3">🌍</span>
         <span class="impact-label">ลดการปล่อยคาร์บอน</span>
-        <strong><?= number_format((float) $sum['co2'], 2) ?></strong>
+        <strong class="d-block text-success fs-3"><?= number_format((float) $sum['co2'], 2) ?></strong>
         <small>kgCO₂e จากรายการที่สำเร็จ</small>
       </div>
     </div>
@@ -74,7 +74,7 @@ head('หน้าแรก', false);
 </section>
 
 <section class="home-journey-section">
-  <div class="home-section-heading">
+  <div class="home-section-heading mt-5 mb-4">
     <span class="section-eyebrow">FROM E-WASTE TO NEW VALUE</span>
     <h2>ส่งรีไซเคิลแล้ว ได้อะไรบ้าง?</h2>
     <p>GreenLoop ช่วยให้การจัดการขยะอิเล็กทรอนิกส์เป็นเรื่องง่าย ตรวจสอบได้ และมีแรงจูงใจ</p>
@@ -82,9 +82,9 @@ head('หน้าแรก', false);
   <div class="row g-3">
     <?php foreach ($steps as $index => $s): ?>
       <div class="col-md-4">
-        <a class="card journey-card h-100 text-decoration-none" href="<?= $s[3] ?>">
-          <div class="journey-card-top">
-            <span class="journey-icon"><?= $s[0] ?></span>
+        <a class="card journey-card h-100 p-4 text-decoration-none" href="<?= $s[3] ?>">
+          <div class="journey-card-top d-flex align-items-center justify-content-between gap-3">
+            <span class="journey-icon fs-3"><?= $s[0] ?></span>
             <span class="journey-number">0<?= $index + 1 ?></span>
           </div>
           <h3><?= $s[1] ?></h3>
@@ -98,7 +98,7 @@ head('หน้าแรก', false);
   </div>
 </section>
 
-<section class="home-campaign">
+<section class="home-campaign d-flex justify-content-between gap-4 mt-5 rounded-4">
   <div class="campaign-decoration" aria-hidden="true">🌿</div>
   <div class="campaign-copy">
     <span class="section-eyebrow">ชวนกันเปลี่ยนของเก่า ให้เป็นคุณค่าใหม่</span>
@@ -112,7 +112,7 @@ head('หน้าแรก', false);
 </div>
 
 <section class="articles-section mt-5">
-  <div class="articles-heading">
+  <div class="articles-heading d-flex align-items-center justify-content-between gap-3">
     <div>
       <span class="section-eyebrow">GREENLOOP JOURNAL</span>
       <h2 class="mt-2 mb-2">เรื่องเล็ก ๆ ที่ช่วยโลกได้ 🌱</h2>
@@ -121,19 +121,19 @@ head('หน้าแรก', false);
     <span class="article-count"><?= $featuredNews ? count($news) + 1 : 0 ?> เรื่อง</span>
   </div>
 
-  <div class="article-toolbar">
+  <div class="article-toolbar d-flex align-items-center justify-content-between gap-3">
     <span>บทความและข่าวสาร</span>
     <?php search() ?>
   </div>
 
   <?php if ($featuredNews): ?>
-    <article class="card article-feature mb-4">
-      <div class="article-art" aria-hidden="true">
+    <article class="card article-feature row g-0 m-0 overflow-hidden mb-4">
+      <div class="article-art col-md-5 d-grid" aria-hidden="true">
         <span class="article-art-orbit"></span>
         <span class="article-art-icon">♻️</span>
         <span class="article-art-leaf">✦</span>
       </div>
-      <div class="article-feature-content">
+      <div class="article-feature-content col-md-7 p-4 p-lg-5">
         <span class="article-label">เรื่องเด่น</span>
         <h3><?= e($featuredNews['title']) ?></h3>
         <p><?= nl2br(e($featuredNews['body'])) ?></p>
@@ -145,9 +145,9 @@ head('หน้าแรก', false);
       <div class="row">
         <?php foreach ($news as $index => $n): ?>
           <div class="col-md-6 col-xl-4">
-            <article class="card article-card mb-3">
-              <div class="article-card-top">
-                <span class="article-card-icon"><?= $index % 2 === 0 ? '🌿' : '💡' ?></span>
+            <article class="card article-card h-100 p-4 mb-3">
+              <div class="article-card-top d-flex align-items-center justify-content-between gap-3">
+                <span class="article-card-icon fs-3"><?= $index % 2 === 0 ? '🌿' : '💡' ?></span>
                 <small class="text-muted"><?= dt($n['start_at']) ?></small>
               </div>
               <h4><?= e($n['title']) ?></h4>

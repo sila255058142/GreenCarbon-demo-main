@@ -34,7 +34,7 @@ head('รีไซเคิล');
   <div>
     <span class="small fw-bold text-uppercase opacity-75">Recycle &amp; Make a Difference</span>
     <p class="lead mb-1">🌱 คาร์บอนที่ลดได้ในปี <?= $year + 543 ?></p>
-    <div class="big"><?= number_format($saved, 2) ?> <span>kgCO₂e</span></div>
+    <div class="fs-1 lh-sm"><?= number_format($saved, 2) ?> <span>kgCO₂e</span></div>
     <p class="mb-0">ส่งต่อขยะอิเล็กทรอนิกส์ให้กลับมาใช้ประโยชน์ และช่วยลดผลกระทบต่อสิ่งแวดล้อม</p>
   </div>
   <div class="d-none d-md-block fs-1 text-nowrap" aria-hidden="true">📦 ✦ 🌿</div>

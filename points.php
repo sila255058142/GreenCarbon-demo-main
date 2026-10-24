@@ -13,7 +13,7 @@ head('แต้มของฉัน', false);
 ?>
 <div class="hero text-center mb-4">
   <?= pic($u['avatar'], 80) ?>
-  <div class="big"><?= level($u['points']) ?></div>
+  <div class="fs-1 lh-sm"><?= level($u['points']) ?></div>
   <p class="lead"><?= $u['points'] ?> แต้ม<?= $next ? ' · อีก ' . ($next - $u['points']) . ' แต้ม จะเลื่อนเป็น ' . LEVELS[$next] : ' · ระดับสูงสุดแล้ว' ?></p>
   <?php if ($next): ?>
     <div class="progress"><div class="progress-bar bg-warning" style="width:<?= round($u['points'] / $next * 100) ?>%"></div></div>

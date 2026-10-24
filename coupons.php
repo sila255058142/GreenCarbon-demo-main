@@ -65,97 +65,43 @@ if (isset($_POST['claim'])) {
 }
 
 $rewards = all('SELECT * FROM rewards WHERE is_active = 1 AND (stock IS NULL OR stock > 0) ORDER BY points_cost, id');
-$requests = all('SELECT cr.*, r.title AS reward_title FROM coupon_redemptions cr JOIN rewards r ON r.id = cr.reward_id
-    WHERE cr.user_id = ? ORDER BY cr.id DESC', [$u['id']]);
 $balance = (int) val('SELECT points FROM users WHERE id = ?', [$u['id']]);
-$pointHistory = all('SELECT amount, description, created_at FROM point_transactions WHERE user_id = ? ORDER BY id DESC LIMIT 30', [$u['id']]);
 
 head('แลกคูปอง');
 ?>
-<div class="hero page-hero coupon-hero mb-4">
-  <div class="page-hero-copy">
-    <span class="page-hero-eyebrow">GREENLOOP REWARDS</span>
-    <p class="lead mb-1">แต้มของคุณพร้อมแลกรางวัล</p>
-    <div class="big"><?= number_format($balance) ?> <span>แต้ม</span></div>
-    <p class="mb-0">เลือกของรางวัลที่ชอบ แล้วส่งคำขอให้ทีมงานตรวจสอบ</p>
-  </div>
-  <div class="page-hero-art coupon-hero-art" aria-hidden="true">
-    <span class="hero-art-ring"></span>
-    <span class="hero-art-icon">🎁</span>
-    <span class="hero-art-spark">✦</span>
-    <span class="hero-art-leaf">🌱</span>
-  </div>
+<div class="bg-success text-white rounded p-4 mb-4">
+  <p class="lead mb-1">แต้มของคุณพร้อมแลกรางวัล</p>
+  <div class="fs-1 lh-sm"><?= number_format($balance) ?> แต้ม</div>
+  <p class="mb-0">เลือกของรางวัลที่ชอบ แล้วส่งคำขอให้ทีมงานตรวจสอบ</p>
 </div>
 
-<h5 class="page-section-title">🎁 ของรางวัล</h5>
-<div class="row">
-  <?php foreach ($rewards as $index => $r): ?>
+<h5 class="mb-4">🎁 ของรางวัล</h5>
+<div class="row g-3">
+  <?php foreach ($rewards as $r): ?>
     <div class="col-md-6 col-lg-4">
-      <div class="card reward-card mb-3 h-100">
-        <div class="reward-art" aria-hidden="true">
-          <span class="reward-art-orbit"></span>
-          <span><?= ['🎁', '🌿', '☕', '🌍'][$index % 4] ?></span>
-        </div>
-        <div class="reward-card-content">
-          <span class="reward-points"><?= number_format($r['points_cost']) ?> แต้ม</span>
-          <h5><?= e($r['title']) ?></h5>
-          <p class="text-muted flex-grow-1"><?= nl2br(e($r['description'])) ?></p>
-          <p class="reward-stock">คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</p>
-        <form method="post" onsubmit="return confirm('ส่งคำขอแลกของรางวัลนี้หรือไม่? แต้มจะถูกหักระหว่างรออนุมัติ')">
+      <div class="card card-body h-100">
+        <h5><?= e($r['title']) ?></h5>
+        <p class="mb-2"><?= nl2br(e($r['description'])) ?></p>
+        <p class="text-muted">ราคา <?= number_format($r['points_cost']) ?> แต้ม · คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</p>
+        <form method="post" class="mt-auto" onsubmit="return confirm('ยืนยันขอแลกรางวัลนี้หรือไม่?')">
           <input type="hidden" name="reward_id" value="<?= $r['id'] ?>">
-          <button class="btn btn-success w-100" name="redeem" <?= $balance < $r['points_cost'] ? 'disabled' : '' ?>>ขอแลกคูปอง</button>
+          <button class="btn btn-success w-100" name="redeem" <?= $balance < $r['points_cost'] ? 'disabled' : '' ?>>แลกรางวัล</button>
         </form>
-        </div>
       </div>
     </div>
   <?php endforeach; ?>
 </div>
-<?php if (!$rewards): ?><div class="alert alert-secondary">ยังไม่มีของรางวัลที่เปิดให้แลก</div><?php endif; ?>
+<?php if (!$rewards): ?><div class="alert alert-secondary mt-2">ยังไม่มีของรางวัลที่เปิดให้แลก</div><?php endif; ?>
 
-<h5 class="page-section-title mt-4">📋 คำขอและคูปองของฉัน</h5>
-<div class="table-responsive">
-  <table class="table table-striped bg-white align-middle">
-    <tr><th>วันที่</th><th>ของรางวัล</th><th>แต้มที่ใช้</th><th>สถานะ</th><th>รหัสคูปอง</th></tr>
-    <?php foreach ($requests as $r): ?>
-      <tr>
-        <td><?= dt($r['created_at']) ?></td><td><?= e($r['reward_title']) ?></td><td><?= number_format($r['points_spent']) ?></td>
-        <td><?= ['pending' => 'รออนุมัติ', 'approved' => 'อนุมัติแล้ว', 'rejected' => 'ไม่อนุมัติ', 'used' => 'ใช้แล้ว/รอรับของ', 'expired' => 'หมดอายุ'][$r['status']] ?></td>
-        <td><?= $r['coupon_code'] ? '<code class="fs-6">' . e($r['coupon_code']) . '</code>' . ($r['expires_at'] ? '<br><small>หมดอายุ ' . dt($r['expires_at']) . '</small>' : '') : '-' ?></td>
-      </tr>
-    <?php endforeach; ?>
-  </table>
-</div>
-<?php if (!$requests): ?><div class="alert alert-secondary">ยังไม่มีประวัติการแลกคูปอง</div><?php endif; ?>
-
-<h5 class="page-section-title mt-4">📦 ใช้คูปองรับของ</h5>
+<h5 class="mt-4">📦 ใช้คูปองรับของ</h5>
 <p class="text-muted">กรอกรหัสคูปองที่อนุมัติแล้ว พร้อมข้อมูลจัดส่ง รหัสใช้ได้ครั้งเดียวก่อนวันหมดอายุ</p>
-<form method="post" class="card claim-card mb-4">
-  <aside class="claim-aside p-3 pb-0">
-  <span class="claim-aside-icon fs-2" aria-hidden="true">🎟️</span>
-  <h2 class="h5 mt-2 mb-1">ใกล้ได้รับรางวัลแล้ว</h2>
-  <p class="small text-muted mb-0">ใช้รหัสคูปองที่ได้รับอนุมัติ กรอกข้อมูลจัดส่งให้ครบ แล้วรอรับของรางวัลได้เลย</p>
-</aside>
-<div class="claim-fields p-3">
-  <div class="claim-fields">
-    <label class="form-label" for="claim-code">รหัสคูปอง</label>
-    <input class="form-control mb-2" id="claim-code" name="coupon_code" required maxlength="32" autocomplete="off">
-    <?php input('ชื่อผู้รับ', 'recipient_name', 'text', '', 'required maxlength="100"') ?>
-    <?php input('เบอร์โทรศัพท์ผู้รับ', 'recipient_phone', 'tel', '', 'required maxlength="20" pattern="[0-9+() -]{8,20}"') ?>
-    <label class="form-label mt-2" for="shipping-address">ที่อยู่จัดส่ง</label>
-    <textarea class="form-control" id="shipping-address" name="shipping_address" rows="3" required maxlength="500"></textarea>
-    <button class="btn btn-success mt-3" name="claim">ยืนยันใช้คูปองและรับของ</button>
-  </div>
+<form method="post" class="card card-body mb-4">
+  <label class="form-label" for="claim-code">รหัสคูปอง</label>
+  <input class="form-control" id="claim-code" name="coupon_code" required maxlength="32" autocomplete="off">
+  <?php input('ชื่อผู้รับ', 'recipient_name', 'text', '', 'required maxlength="100"') ?>
+  <?php input('เบอร์โทรศัพท์ผู้รับ', 'recipient_phone', 'tel', '', 'required maxlength="20" pattern="[0-9+() -]{8,20}"') ?>
+  <label class="form-label mt-2" for="shipping-address">ที่อยู่จัดส่ง</label>
+  <textarea class="form-control" id="shipping-address" name="shipping_address" rows="3" required maxlength="500"></textarea>
+  <button class="btn btn-success mt-3 align-self-start" name="claim">ยืนยันใช้คูปอง</button>
 </form>
-
-<h5 class="page-section-title">🧾 ประวัติแต้มเข้า–ออก</h5>
-<div class="table-responsive">
-  <table class="table table-striped bg-white align-middle">
-    <tr><th>วันที่</th><th>รายการ</th><th class="text-end">แต้ม</th></tr>
-    <?php foreach ($pointHistory as $entry): ?>
-      <tr><td><?= dt($entry['created_at']) ?></td><td><?= e($entry['description']) ?></td>
-        <td class="text-end <?= $entry['amount'] < 0 ? 'text-danger' : 'text-success' ?>"><?= $entry['amount'] > 0 ? '+' : '' ?><?= number_format($entry['amount']) ?></td></tr>
-    <?php endforeach; ?>
-  </table>
-</div>
-<?php if (!$pointHistory): ?><div class="alert alert-secondary">ยังไม่มีประวัติแต้ม</div><?php endif; ?>
 <?php foot() ?>
