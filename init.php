@@ -1,7 +1,5 @@
 <?php
 session_start();
-date_default_timezone_set('Asia/Bangkok');
-
 // เชื่อมต่อด้วย mysqli และตั้งค่า Charset
 $db = new mysqli('localhost', 'root', '', 'greenloop');
 

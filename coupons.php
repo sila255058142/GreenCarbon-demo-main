@@ -80,7 +80,7 @@ head('แลกคูปอง');
   <?php foreach ($rewards as $r): ?>
     <div class="col-md-6 col-lg-4">
       <div class="card card-body h-100">
-        <img src="<?=  UP ?>uploads/<?= e($r['image']) ?>" class="card-img-top w-40 h-30" alt="<?= e($r['title']) ?>">
+        <img src="uploads/<?= e($r['image']) ?>" class="card-img-top w-40 h-30" alt="<?= e($r['title']) ?>">
         <h5><?= e($r['title']) ?></h5>
         <p class="mb-2"><?= nl2br(e($r['description'])) ?></p>
         <p class="text-muted">ราคา <?= number_format($r['points_cost']) ?> แต้ม · คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</p>
