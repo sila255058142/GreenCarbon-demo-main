@@ -1,28 +1,23 @@
 <?php
 // จัดการของรางวัลและคำขอใช้คูปอง
 require '../init.php';
-need_admin();
+$admin = need_admin();
 expire_coupons();
 
 if (isset($_POST['save_reward'])) {
-    $title = p('title');
-    $description = p('description');
-    $costInput = p('points_cost');
-    $stockInput = p('stock');
-    $daysInput = p('coupon_valid_days');
-    $cost = ctype_digit($costInput) ? (int) $costInput : 0;
-    $stock = $stockInput === '' ? null : (ctype_digit($stockInput) ? (int) $stockInput : -1);
-    $validDays = ctype_digit($daysInput) ? (int) $daysInput : 0;
-    if (mb_strlen($title) < 2 || mb_strlen($description) > 500 || $cost <= 0 || ($stock !== null && $stock < 0) || $validDays < 1 || $validDays > 365) {
+    $title = p('title'); $description = p('description'); $cost = p('points_cost');
+    $stock = p('stock'); $days = p('coupon_valid_days'); $id = p('id');
+    if (mb_strlen($title) < 2 || mb_strlen($description) > 500 || !ctype_digit($cost) || (int) $cost < 1
+        || ($stock !== '' && (!ctype_digit($stock) || (int) $stock < 0))
+        || !ctype_digit($days) || (int) $days < 1 || (int) $days > 365) {
         go('coupons.php', 'กรุณาตรวจสอบชื่อ แต้ม จำนวนสต็อก และวันหมดอายุ (1-365 วัน)', 'danger');
     }
-    if (p('id')) {
-        q('UPDATE rewards SET title = ?, description = ?, points_cost = ?, stock = ?, coupon_valid_days = ? WHERE id = ?',
-            [$title, $description, $cost, $stock, $validDays, p('id')]);
-    } else {
-        q('INSERT INTO rewards (title, description, points_cost, stock, coupon_valid_days) VALUES (?, ?, ?, ?, ?)',
-            [$title, $description, $cost, $stock, $validDays]);
-    }
+    $sql = $id
+        ? 'UPDATE rewards SET title = ?, description = ?, points_cost = ?, stock = ?, coupon_valid_days = ? WHERE id = ?'
+        : 'INSERT INTO rewards (title, description, points_cost, stock, coupon_valid_days) VALUES (?, ?, ?, ?, ?)';
+    $values = [$title, $description, (int) $cost, $stock === '' ? null : (int) $stock, (int) $days];
+    if ($id) $values[] = $id;
+    q($sql, $values);
     go('coupons.php', 'บันทึกของรางวัลแล้ว');
 }
 if (isset($_POST['toggle_reward'])) {
@@ -36,13 +31,11 @@ if (isset($_POST['review'])) {
         $db->rollBack();
         go('coupons.php', 'คำขอนี้ถูกดำเนินการแล้วหรือไม่พบคำขอ', 'danger');
     }
-    $reward = one('SELECT title, coupon_valid_days FROM rewards WHERE id = ? FOR UPDATE', [$request['reward_id']]);
 
     if (isset($_POST['reject'])) {
-        q("UPDATE coupon_redemptions SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ? WHERE id = ? AND status = 'pending'", [me()['id'], $request['id']]);
+        q("UPDATE coupon_redemptions SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ?, stock_reserved = 0 WHERE id = ? AND status = 'pending'", [$admin['id'], $request['id']]);
         q('UPDATE users SET points = points + ? WHERE id = ?', [$request['points_spent'], $request['user_id']]);
         q('UPDATE rewards SET stock = IF(stock IS NULL OR ? = 0, stock, stock + 1) WHERE id = ?', [$request['stock_reserved'], $request['reward_id']]);
-        q('UPDATE coupon_redemptions SET stock_reserved = 0 WHERE id = ?', [$request['id']]);
         q("INSERT INTO point_transactions (user_id, amount, description, related_type, related_id) VALUES (?, ?, ?, 'coupon_refund', ?)",
             [$request['user_id'], $request['points_spent'], 'คืนแต้มจากคำขอแลกคูปองที่ไม่ผ่าน', $request['id']]);
         $db->commit();
@@ -50,12 +43,13 @@ if (isset($_POST['review'])) {
         go('coupons.php', 'ไม่อนุมัติคำขอและคืนแต้มให้สมาชิกแล้ว', 'warning');
     }
 
+    $reward = one('SELECT title, coupon_valid_days FROM rewards WHERE id = ? FOR UPDATE', [$request['reward_id']]);
     do {
         $code = 'GL-' . strtoupper(bin2hex(random_bytes(6)));
     } while (val('SELECT 1 FROM coupon_redemptions WHERE coupon_code = ?', [$code]));
     $expiresAt = date('Y-m-d H:i:s', time() + (int) $reward['coupon_valid_days'] * 86400);
     q("UPDATE coupon_redemptions SET status = 'approved', coupon_code = ?, expires_at = ?, reviewed_at = NOW(), reviewed_by = ?
-        WHERE id = ? AND status = 'pending'", [$code, $expiresAt, me()['id'], $request['id']]);
+        WHERE id = ? AND status = 'pending'", [$code, $expiresAt, $admin['id'], $request['id']]);
     $db->commit();
     notify($request['user_id'], 'คูปองได้รับการอนุมัติ', 'ใช้รหัส ' . $code . ' แลก ' . $reward['title'] . ' ภายใน ' . dt($expiresAt), 'coupons.php');
     go('coupons.php', 'อนุมัติแล้ว ออกคูปอง ' . $code . ' หมดอายุ ' . dt($expiresAt));
@@ -67,42 +61,32 @@ $requests = all("SELECT cr.*, u.name AS member, r.title AS reward_title FROM cou
     WHERE (? = '' OR cr.status = ?) AND (u.name LIKE ? OR r.title LIKE ?)
     ORDER BY cr.status = 'pending' DESC, cr.id DESC",
     [g('status'), g('status'), like(), like()]);
+$statuses = ['pending' => 'รออนุมัติ', 'approved' => 'อนุมัติแล้ว', 'rejected' => 'ไม่อนุมัติ', 'used' => 'ใช้แล้ว/รอจัดส่ง', 'expired' => 'หมดอายุ'];
 $statusOptions = '<option value="">ทุกสถานะ</option>';
-foreach (['pending' => 'รออนุมัติ', 'approved' => 'อนุมัติแล้ว', 'rejected' => 'ไม่อนุมัติ', 'used' => 'ใช้แล้ว/รอจัดส่ง', 'expired' => 'หมดอายุ'] as $value => $label) {
+foreach ($statuses as $value => $label) {
     $statusOptions .= "<option value='$value'" . (g('status') == $value ? ' selected' : '') . ">$label</option>";
 }
 
 head('จัดการคูปอง');
 ?>
 <h5>🎁 จัดการของรางวัล</h5>
-<?php foreach ($rewards as $r): ?>
-  <form method="post" class="card card-body mb-2">
-    <input type="hidden" name="id" value="<?= $r['id'] ?>">
-    <div class="row g-2 align-items-end">
-      <div class="col-md-3"><label class="form-label">ชื่อของรางวัล</label><input class="form-control" name="title" value="<?= e($r['title']) ?>" required minlength="2"></div>
-      <div class="col-md-3"><label class="form-label">รายละเอียด/เงื่อนไข</label><input class="form-control" name="description" value="<?= e($r['description']) ?>"></div>
-      <div class="col-md-2"><label class="form-label">แต้มที่ใช้</label><input class="form-control" name="points_cost" type="number" min="1" step="1" value="<?= $r['points_cost'] ?>" required></div>
-      <div class="col-md-2"><label class="form-label">สต็อก (ว่าง=ไม่จำกัด)</label><input class="form-control" name="stock" type="number" min="0" step="1" value="<?= e($r['stock']) ?>"></div>
-      <div class="col-md-2"><label class="form-label">อายุคูปอง (วัน)</label><input class="form-control" name="coupon_valid_days" type="number" min="1" max="365" value="<?= $r['coupon_valid_days'] ?>" required></div>
-      <div class="col-12 d-flex gap-1">
-        <button class="btn btn-success" name="save_reward">บันทึก</button>
-        <button class="btn btn-outline-secondary" name="toggle_reward"><?= $r['is_active'] ? 'ปิด' : 'เปิด' ?></button>
-      </div>
+<?php foreach (array_merge($rewards, [null]) as $r): $newReward = $r === null; ?>
+  <form method="post" class="card card-body <?= $newReward ? 'mb-4' : 'mb-2' ?>">
+    <?php if ($newReward): ?><h6>➕ เพิ่มของรางวัล</h6><?php else: ?><input type="hidden" name="id" value="<?= $r['id'] ?>"><?php endif; ?>
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3"><label class="form-label">ชื่อของรางวัล</label><input class="form-control" name="title" value="<?= e($r['title'] ?? '') ?>" required minlength="2"></div>
+    <div class="col-md-3"><label class="form-label">รายละเอียด/เงื่อนไข</label><input class="form-control" name="description" value="<?= e($r['description'] ?? '') ?>"></div>
+    <div class="col-md-2"><label class="form-label">แต้มที่ใช้</label><input class="form-control" name="points_cost" type="number" min="1" value="<?= $r['points_cost'] ?? '' ?>" required></div>
+    <div class="col-md-2"><label class="form-label">สต็อก (ว่าง=ไม่จำกัด)</label><input class="form-control" name="stock" type="number" min="0" value="<?= e($r['stock'] ?? '') ?>"></div>
+    <div class="col-md-2"><label class="form-label">อายุคูปอง (วัน)</label><input class="form-control" name="coupon_valid_days" type="number" min="1" max="365" value="<?= $r['coupon_valid_days'] ?? 30 ?>" required></div>
+    <div class="col-12 d-flex gap-1">
+      <button class="btn btn-success" name="save_reward"><?= $newReward ? 'เพิ่มรางวัล' : 'บันทึก' ?></button>
+      <?php if (!$newReward): ?><button class="btn btn-outline-secondary" name="toggle_reward"><?= $r['is_active'] ? 'ปิด' : 'เปิด' ?></button><?php endif; ?>
     </div>
-    <small class="text-muted mt-2">สถานะ: <?= $r['is_active'] ? 'เปิดให้แลก' : 'ปิดรับแลก' ?> · คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</small>
+  </div>
+  <?php if (!$newReward): ?><small class="text-muted mt-2">สถานะ: <?= $r['is_active'] ? 'เปิดให้แลก' : 'ปิดรับแลก' ?> · คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</small><?php endif; ?>
   </form>
 <?php endforeach; ?>
-<form method="post" class="card card-body mb-4">
-  <h6>➕ เพิ่มของรางวัล</h6>
-  <div class="row g-2 align-items-end">
-    <div class="col-md-3"><label class="form-label">ชื่อของรางวัล</label><input class="form-control" name="title" required minlength="2"></div>
-    <div class="col-md-3"><label class="form-label">รายละเอียด/เงื่อนไข</label><input class="form-control" name="description"></div>
-    <div class="col-md-2"><label class="form-label">แต้มที่ใช้</label><input class="form-control" name="points_cost" type="number" min="1" step="1" required></div>
-    <div class="col-md-2"><label class="form-label">สต็อก (ว่าง=ไม่จำกัด)</label><input class="form-control" name="stock" type="number" min="0" step="1"></div>
-    <div class="col-md-2"><label class="form-label">อายุคูปอง (วัน)</label><input class="form-control" name="coupon_valid_days" type="number" min="1" max="365" value="30" required></div>
-    <div class="col-12"><button class="btn btn-success" name="save_reward">เพิ่มรางวัล</button></div>
-  </div>
-</form>
 
 <h5>📋 คำขอแลกคูปอง / เตรียมจัดส่ง</h5>
 <?php search("<select class='form-select w-auto' name='status'>$statusOptions</select>"); ?>
@@ -113,7 +97,7 @@ head('จัดการคูปอง');
       <tr>
         <td><?= dt($r['created_at']) ?></td><td><?= e($r['member']) ?></td><td><?= e($r['reward_title']) ?></td>
         <td><?= number_format($r['points_spent']) ?></td>
-        <td><?= ['pending' => 'รออนุมัติ', 'approved' => 'อนุมัติแล้ว', 'rejected' => 'ไม่อนุมัติ', 'used' => 'ใช้แล้ว/รอจัดส่ง', 'expired' => 'หมดอายุ'][$r['status']] ?></td>
+        <td><?= $statuses[$r['status']] ?></td>
         <td><?= $r['coupon_code'] ? '<code>' . e($r['coupon_code']) . '</code>' . ($r['expires_at'] ? '<br><small>' . dt($r['expires_at']) . '</small>' : '') : '-' ?></td>
         <td><?= $r['status'] == 'used' ? e($r['recipient_name']) . '<br>' . e($r['recipient_phone']) . '<br>' . nl2br(e($r['shipping_address'])) : '-' ?></td>
         <td><?php if ($r['status'] == 'pending'): ?>

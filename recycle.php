@@ -4,25 +4,24 @@ require 'init.php';
 $u = need_login();
 $cats = all('SELECT * FROM categories ORDER BY id');
 
-if (isset($_POST['cancel'])) {
-    q("DELETE FROM recycles WHERE id = ? AND user_id = ? AND status = 'pending'", [p('id'), $u['id']]);
-    go('recycle.php', 'ยกเลิกคำขอแล้ว', 'warning');
-}
 if ($_POST) {
     $category = one('SELECT * FROM categories WHERE id = ?', [p('category_id')]);
     $weight = (float) p('weight_kg');
-    if (mb_strlen(p('item_name')) < 3 || $weight <= 0 || !$category) {
-        go('recycle.php', 'กรุณาเลือกหมวด กรอกรายการอย่างน้อย 3 ตัวอักษร และน้ำหนักมากกว่า 0', 'danger');
+    $delivery = p('delivery_type');
+    $address = p('address');
+    if (mb_strlen(p('item_name')) < 3 || $weight <= 0 || !$category
+        || !in_array($delivery, ['self', 'pickup'], true) || !$address || mb_strlen($address) > 500) {
+        go('recycle.php', 'กรุณาตรวจสอบข้อมูลอุปกรณ์ ประเภทการขนส่ง และที่อยู่', 'danger');
     }
+    $image = upload('image');
+    if (!$image && bad_upload('image')) go('recycle.php', bad_upload('image'), 'danger');
     $estimatedCo2 = $weight * $category['co2_per_kg'];
-    q('INSERT INTO recycles (user_id, category_id, item_name, weight_kg) VALUES (?, ?, ?, ?)', [$u['id'], p('category_id'), p('item_name'), $weight]);
+    q('INSERT INTO recycles (user_id, category_id, item_name, weight_kg, image, delivery_type, address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [$u['id'], p('category_id'), p('item_name'), $weight, $image, $delivery, $address]);
     notify(null, 'คำขอรีไซเคิลใหม่', $u['name'] . ': ' . p('item_name'), 'admin/recycles.php?status=pending');
     go('recycle.php#recycle-form', 'ส่งคำขอแล้ว คาดว่าจะลดคาร์บอนได้ ' . number_format($estimatedCo2, 2) . ' kgCO₂e (ยืนยันผลจริงเมื่อผู้ดูแลตรวจรับ) คุณจะได้ ' . POINT_PER_KG . ' แต้มต่อ 1 กก.');
 }
 
-$sort = g('sort') == 'weight' ? 'r.weight_kg DESC' : 'r.id DESC';
-$rows = all("SELECT r.*, c.name AS category, c.co2_per_kg FROM recycles r JOIN categories c ON c.id = r.category_id
-    WHERE r.user_id = ? AND r.item_name LIKE ? ORDER BY $sort", [$u['id'], like()]);
 $year = date('Y');
 $saved = val("SELECT COALESCE(SUM(co2_kg), 0) FROM recycles WHERE user_id = ? AND status = 'done' AND YEAR(created_at) = ?", [$u['id'], $year]);
 
@@ -38,7 +37,7 @@ head('รีไซเคิล');
   <div class="d-none d-md-block fs-1 text-nowrap" aria-hidden="true">📦 ✦ 🌿</div>
 </div>
 
-<form method="post" class="card border-0 shadow-sm overflow-hidden mb-4">
+<form method="post" enctype="multipart/form-data" class="card border-0 shadow-sm overflow-hidden mb-4">
   <div class="row g-0">
         <aside class="col-md-4 p-4 d-flex flex-column justify-content-center" style="background:#e8f5ee">
       <div class="fs-1 mb-2" aria-hidden="true">♻️</div>
@@ -59,7 +58,16 @@ head('รีไซเคิล');
       </select>
       <?php input('รายการ', 'item_name', 'text', '', 'required minlength="3"') ?>
       <?php input('น้ำหนักโดยประมาณ (กก.)', 'weight_kg', 'number', '', 'required min="0.01" step="0.01" id="recycle-weight"') ?>
+      <label class="form-label mt-2">ประเภทการขนส่ง</label>
+      <select class="form-select" name="delivery_type" required>
+        <option value="">เลือกประเภทการขนส่ง</option>
+        <option value="self">นำส่งเอง</option>
+        <option value="pickup">นัดรับที่บ้าน</option>
+      </select>
+      <label class="form-label mt-2">ที่อยู่สำหรับรับ/ส่ง</label>
+      <textarea class="form-control" name="address" rows="3" maxlength="500" required></textarea>
       <div id="recycle-estimate" class="form-text text-success mb-3" aria-live="polite">เลือกหมวดและกรอกน้ำหนักเพื่อดูปริมาณคาร์บอนที่คาดว่าจะลดได้</div>
+      <?php input('รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
       <button class="btn btn-success mt-3 px-4">ส่งคำขอ</button>
     </div>
   </div>
@@ -82,20 +90,4 @@ head('รีไซเคิล');
   recycleWeight.addEventListener('input', updateRecycleEstimate);
 </script>
 
-<h5 class="fw-bold mb-3">คำขอของฉัน</h5>
-<?php search('<select class="form-select w-auto" name="sort"><option value="">ใหม่ล่าสุด</option><option value="weight"' . (g('sort') == 'weight' ? ' selected' : '') . '>น้ำหนักมากสุด</option></select>') ?>
-<div class="table-responsive">
-<table class="table table-striped bg-white align-middle">
-  <tr><th>วันที่</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด/คาดการณ์</th><th></th></tr>
-  <?php foreach ($rows as $r): ?>
-    <tr>
-      <td><?= dt($r['created_at']) ?></td><td><?= e($r['item_name']) ?></td><td><?= e($r['category']) ?></td>
-      <td><?= $r['weight_kg'] ?></td><td><?= STATUS[$r['status']] ?></td><td><?= $r['points'] ?></td><td><?= $r['status'] == 'pending' ? number_format($r['weight_kg'] * $r['co2_per_kg'], 2) . ' (ประมาณ)' : $r['co2_kg'] ?></td>
-      <td><?php if ($r['status'] == 'pending'): ?>
-        <form method="post"><input type="hidden" name="id" value="<?= $r['id'] ?>"><button class="btn btn-sm btn-outline-danger" name="cancel" onclick="return confirm('ยกเลิกคำขอนี้?')">ยกเลิก</button></form>
-      <?php endif; ?></td>
-    </tr>
-  <?php endforeach; ?>
-</table>
-</div>
 <?php foot() ?>

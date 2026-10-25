@@ -4,7 +4,7 @@ require 'init.php';
 $u = me();
 if ($u && $u['role'] == 'admin') go('admin/index.php');
 
-$news = all('SELECT * FROM contents WHERE start_at <= NOW() AND (end_at IS NULL OR end_at > NOW()) AND title LIKE ? ORDER BY start_at DESC', [like()]);
+$news = all('SELECT * FROM contents WHERE start_at <= NOW() AND (end_at IS NULL OR end_at > NOW()) ORDER BY start_at DESC');
 $featuredNews = $news ? array_shift($news) : null;
 $sum = one("SELECT COUNT(*) AS n, COALESCE(SUM(weight_kg), 0) AS kg, COALESCE(SUM(co2_kg), 0) AS co2 FROM recycles WHERE status = 'done'");
 $memberCount = val("SELECT COUNT(*) FROM users WHERE role = 'user'");
@@ -123,7 +123,6 @@ head('หน้าแรก', false);
 
   <div class="article-toolbar d-flex align-items-center justify-content-between gap-3">
     <span>บทความและข่าวสาร</span>
-    <?php search() ?>
   </div>
 
   <?php if ($featuredNews): ?>
@@ -159,7 +158,7 @@ head('หน้าแรก', false);
       </div>
     <?php endif; ?>
   <?php else: ?>
-    <div class="alert alert-secondary"><?= g('q') ? 'ไม่พบข่าวสารที่ตรงกับคำค้นหา' : 'ยังไม่มีข่าวสารในขณะนี้' ?></div>
+    <div class="alert alert-secondary">ยังไม่มีข่าวสารในขณะนี้</div>
   <?php endif; ?>
 </section>
 <?php foot() ?>

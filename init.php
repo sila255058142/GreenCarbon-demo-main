@@ -58,8 +58,8 @@ function need_login() { if (!me()) go(UP . 'login.php', 'กรุณาเข�
 function input($label, $name, $type = 'text', $value = '', $attr = 'required') {
     echo "<label class='form-label mt-2'>$label</label><input class='form-control' type='$type' name='$name' value='" . e($value) . "' $attr>"; }
 
-function question($selected = '') {
-    echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>"; foreach (QUESTIONS as $t) echo '<option' . ($t == $selected ? ' selected' : '') . ">$t</option>"; echo '</select>'; }
+function question($selected = '') { echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>";
+    foreach (QUESTIONS as $t) echo "<option" . ($t == $selected ? ' selected' : '') . ">$t</option>"; echo '</select>'; }
 function check_user($id = 0)
 {
     if (mb_strlen(p('name')) < 2) return 'กรุณากรอกชื่อ-นามสกุล';
@@ -69,6 +69,16 @@ function check_user($id = 0)
     return '';
 }
 function check_pass() { if (strlen(p('password')) < 8) return 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร'; if (p('password') != p('password2')) return 'ยืนยันรหัสผ่านไม่ตรงกัน'; return ''; }
+function upload($field) {
+    $file = $_FILES[$field] ?? null;
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || $file['size'] > 2 * 1024 * 1024) return '';
+    $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_GIF => 'gif'];
+    $image = getimagesize($file['tmp_name']);
+    if (!$image || !isset($types[$image[2]])) return '';
+    $name = uniqid() . '.' . $types[$image[2]];
+    return move_uploaded_file($file['tmp_name'], __DIR__ . '/uploads/' . $name) ? $name : '';
+}
+function bad_upload($field) { return !empty($_FILES[$field]['name']) ? 'รูปต้องเป็นไฟล์ JPG PNG หรือ GIF ขนาดไม่เกิน 2MB' : ''; }
 function notify($to, $title, $msg, $link = '') { q('INSERT INTO notifications (user_id, title, message, link) VALUES (?, ?, ?, ?)', [$to, $title, mb_substr($msg, 0, 500), $link]); }
 function expire_coupons($userId = null)
 {
@@ -77,9 +87,8 @@ function expire_coupons($userId = null)
     $sql = "SELECT id, user_id, reward_id, stock_reserved FROM coupon_redemptions WHERE status = 'approved' AND expires_at IS NOT NULL AND expires_at <= NOW()";
     $expired = all($sql . ($userId === null ? '' : ' AND user_id = ?') . ' FOR UPDATE', $userId === null ? [] : [$userId]);
     foreach ($expired as $c) {
-        q("UPDATE coupon_redemptions SET status = 'expired' WHERE id = ? AND status = 'approved'", [$c['id']]);
+        q("UPDATE coupon_redemptions SET status = 'expired', stock_reserved = 0 WHERE id = ? AND status = 'approved'", [$c['id']]);
         q('UPDATE rewards SET stock = IF(stock IS NULL OR ? = 0, stock, stock + 1) WHERE id = ?', [$c['stock_reserved'], $c['reward_id']]);
-        q('UPDATE coupon_redemptions SET stock_reserved = 0 WHERE id = ?', [$c['id']]);
         notify($c['user_id'], 'คูปองหมดอายุ', 'คูปองของคุณหมดอายุแล้วและคืนสิทธิ์ของรางวัลเข้าสต็อก', 'coupons.php');
     }
     $db->commit();
@@ -90,7 +99,8 @@ function box($label, $value) { echo "<div class='col-6 col-lg-3'><div class='car
 function chart($title, $type, $labels, $data)
 {
     static $n = 0; $id = 'c' . ++$n;
-    echo "<div class='card card-body mb-3'><h6>$title</h6><canvas id='$id'></canvas></div><script>new Chart(document.getElementById('$id'), {type: '$type', data: {labels: " . json_encode($labels) . ", datasets: [{label: '$title', data: " . json_encode($data, JSON_NUMERIC_CHECK) . "}]}});</script>";
+    $config = "{type:" . json_encode($type) . ",data:{labels:" . json_encode($labels). ",datasets:[{label:" . json_encode($title) . ",data:" . json_encode($data, JSON_NUMERIC_CHECK) . "}]}}";
+    echo "<div class='card card-body mb-3'><h6>" . e($title) . "</h6><canvas id='$id'></canvas></div>". "<script>new Chart(document.getElementById('$id'),$config);</script>";
 }
 
 require_once __DIR__ . '/header.php';

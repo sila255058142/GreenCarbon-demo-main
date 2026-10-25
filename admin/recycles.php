@@ -42,11 +42,13 @@ search("<select class='form-select w-auto' name='status'>$options</select>");
 ?>
 <div class="table-responsive">
 <table class="table table-striped bg-white align-middle">
-  <tr><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
+  <tr><th>รูป</th><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>ขนส่ง</th><th>ที่อยู่</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
   <?php foreach ($rows as $r): ?>
     <tr>
+      <td><?= $r['image'] ? '<a href="../uploads/' . e($r['image']) . '" target="_blank" rel="noopener"><img src="../uploads/' . e($r['image']) . '" alt="รูปสินค้า" style="max-width:70px;max-height:56px;object-fit:cover"></a>' : '-' ?></td>
       <td><?= dt($r['created_at']) ?></td><td><?= e($r['member']) ?></td><td><?= e($r['item_name']) ?></td><td><?= e($r['category']) ?></td>
-      <td><?= $r['weight_kg'] ?></td><td><?= STATUS[$r['status']] ?></td><td><?= $r['points'] ?></td><td><?= $r['co2_kg'] ?></td>
+      <td><?= $r['weight_kg'] ?></td><td><?= $r['delivery_type'] == 'pickup' ? 'นัดรับที่บ้าน' : 'นำส่งเอง' ?></td><td><?= nl2br(e($r['address'])) ?></td>
+      <td><?= STATUS[$r['status']] ?></td><td><?= $r['points'] ?></td><td><?= $r['co2_kg'] ?></td>
       <td><?php if ($r['status'] == 'pending'): ?>
         <form method="post" class="d-flex gap-1">
           <input type="hidden" name="id" value="<?= $r['id'] ?>">
