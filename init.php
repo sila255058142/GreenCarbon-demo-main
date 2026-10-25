@@ -26,7 +26,7 @@ function query($db, $sql, $p = []) {
 function q($sql, $p = []) { global $db; return query($db, $sql, $p); }
 function all($sql, $p = []) { return q($sql, $p)->fetch_all(MYSQLI_ASSOC); }
 function one($sql, $p = []) { return q($sql, $p)->fetch_assoc(); }
-function val($sql, $p = []) { return (q($sql, $p)->fetch_row() ?? [])[0] ?? null; }
+function val($sql, $p = []) { return q($sql, $p)->fetch_row()[0]; }
 
 // Utility Helpers
 function p($k) { return trim($_POST[$k] ?? ''); }
