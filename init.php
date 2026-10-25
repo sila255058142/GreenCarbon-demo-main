@@ -34,51 +34,32 @@ const MENU_ADMIN = ['admin/index.php' => 'Dashboard',
 'admin/coupons.php' => 'คูปอง',
 'admin/reports.php' => 'รายงาน'];
 
-// เชื่อมต่อและเรียกใช้ฐานข้อมูล: q(), all(), one(), val()
-// ใช้ใน: coupons.php, forgot.php, issue.php, notifications.php, profile.php, recycle.php, register.php และ admin/contents.php, admin/coupons.php, admin/green.php, admin/issues.php, admin/recycles.php, admin/users.php
 function q($sql, $p = []) { global $db; $s = $db->prepare($sql); $s->execute($p); return $s; }
-// ใช้ใน: coupons.php, index.php, notifications.php, points.php, recycle.php และ admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function all($sql, $p = []) { return q($sql, $p)->fetchAll(); }
-// ใช้ใน: coupons.php, forgot.php, index.php, login.php, points.php, recycle.php และ admin/contents.php, admin/coupons.php, admin/index.php, admin/issues.php, admin/recycles.php
 function one($sql, $p = []) { return q($sql, $p)->fetch(); }
-// ใช้ใน: coupons.php, index.php, recycle.php และ admin/coupons.php, admin/green.php, admin/index.php
 function val($sql, $p = []) { return q($sql, $p)->fetchColumn(); }
-// ตัวช่วยใช้ร่วมกัน
-// ใช้ใน: coupons.php, index.php, notifications.php, points.php, recycle.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
-function e($s) { return htmlspecialchars($s ?? '', ENT_QUOTES); }
-// ใช้ใน: index.php, recycle.php, admin/contents.php, admin/coupons.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
-function g($k, $d = '') { return trim($_GET[$k] ?? $d); }
-// ใช้ใน: coupons.php, forgot.php, issue.php, login.php, notifications.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/issues.php, admin/recycles.php, admin/users.php
 function p($k) { return trim($_POST[$k] ?? ''); }
-// ใช้ใน: register.php
+function g($k, $d = '') { return trim($_GET[$k] ?? $d); }
+function e($s) { return htmlspecialchars($s ?? '', ENT_QUOTES); }
 function flash($msg, $type = 'danger') { $_SESSION['flash'] = [$msg, $type]; }
-// ใช้ใน: coupons.php, footprint.php, forgot.php, index.php, issue.php, login.php, notifications.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/issues.php, admin/recycles.php, admin/users.php
 function go($url, $msg = '', $type = 'success') { if ($msg) flash($msg, $type); header("Location: $url"); exit; }
-
-// 1) index.php: ตรวจผู้ใช้ ค้นหา และแสดงข้อมูล
-// ใช้ใน: index.php, admin/coupons.php
 function me()
 {
     static $u;
     if (!$u && isset($_SESSION['uid'])) $u = one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$_SESSION['uid']]);
     return $u;
 }
-// ใช้ใน: index.php, notifications.php, recycle.php, admin/contents.php, admin/coupons.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function like() { return '%' . g('q') . '%'; }
-// ใช้ใน: index.php, points.php, profile.php, admin/users.php
 function level($points) { foreach (LEVELS as $min => $name) if ($points >= $min) $lv = $name; return $lv; }
-// ใช้ใน: coupons.php, index.php, notifications.php, recycle.php, admin/contents.php, admin/coupons.php, admin/issues.php, admin/recycles.php, admin/users.php
 function dt($s) { return $s ? date('d/m/Y H:i', strtotime($s)) : '-'; }
-// ใช้ใน: index.php, notifications.php, recycle.php, admin/contents.php, admin/coupons.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function search($extra = '') { echo "<form class='d-flex flex-wrap gap-2 mb-3 d-print-none'>$extra<input class='form-control w-auto' name='q' value='" . e(g('q')) . "' placeholder='ค้นหา...'><button class='btn btn-success'>ค้นหา</button></form>"; }
 
-// 2) login.php: สร้างช่องกรอกข้อมูล
-// ใช้ใน: coupons.php, forgot.php, login.php, profile.php, recycle.php, register.php และ admin/contents.php
+function need_login() { if (!me()) go(UP . 'login.php', 'กรุณาเข้าสู่ระบบก่อน', 'warning'); return me(); }
 function input($label, $name, $type = 'text', $value = '', $attr = 'required') {
     echo "<label class='form-label mt-2'>$label</label><input class='form-control' type='$type' name='$name' value='" . e($value) . "' $attr>"; }
 
-// 3) register.php: ตรวจข้อมูลและจัดการรูป/คำถาม
-// ใช้ใน: profile.php, register.php
+function question($selected = '') {
+    echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>"; foreach (QUESTIONS as $t) echo '<option' . ($t == $selected ? ' selected' : '') . ">$t</option>"; echo '</select>'; }
 function check_user($id = 0)
 {
     if (mb_strlen(p('name')) < 2) return 'กรุณากรอกชื่อ-นามสกุล';
@@ -87,32 +68,8 @@ function check_user($id = 0)
     if (!preg_match('/^0\d{9}$/', p('phone'))) return 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก ขึ้นต้นด้วย 0';
     return '';
 }
-
-
-// ใช้ใน: forgot.php, profile.php, register.php
 function check_pass() { if (strlen(p('password')) < 8) return 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร'; if (p('password') != p('password2')) return 'ยืนยันรหัสผ่านไม่ตรงกัน'; return ''; }
-// ใช้ใน: profile.php, recycle.php, register.php
-function upload($field)
-{
-    $f = $_FILES[$field] ?? null;
-    $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_GIF => 'gif'];
-    if (!$f || $f['error'] || $f['size'] > 2 * 1024 * 1024) return '';
-    $info = getimagesize($f['tmp_name']);
-    if (!$info || !isset($types[$info[2]])) return '';
-    $name = uniqid() . '.' . $types[$info[2]];
-    move_uploaded_file($f['tmp_name'], __DIR__ . '/uploads/' . $name);
-    return $name;
-}
-// ใช้ใน: profile.php, recycle.php, register.php
-function bad_upload($field) { return !empty($_FILES[$field]['name']) ? 'รูปต้องเป็นไฟล์ JPG PNG หรือ GIF ขนาดไม่เกิน 2MB' : ''; }
-// ใช้ใน: forgot.php, register.php
-function question($selected = '') {
-    echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>"; foreach (QUESTIONS as $t) echo '<option' . ($t == $selected ? ' selected' : '') . ">$t</option>"; echo '</select>'; }
-// ใช้ใน: coupons.php, issue.php, recycle.php, register.php และ admin/coupons.php, admin/issues.php, admin/recycles.php
 function notify($to, $title, $msg, $link = '') { q('INSERT INTO notifications (user_id, title, message, link) VALUES (?, ?, ?, ?)', [$to, $title, mb_substr($msg, 0, 500), $link]); }
-
-// ฟังก์ชันที่ใช้ในหน้าอื่นของระบบ
-// ใช้ใน: coupons.php, admin/coupons.php, admin/index.php
 function expire_coupons($userId = null)
 {
     global $db;
@@ -127,22 +84,9 @@ function expire_coupons($userId = null)
     }
     $db->commit();
 }
-// ใช้ใน: notifications.php (และใน head() เพื่อแสดงจำนวนแจ้งเตือน)
 function inbox() { return me()['role'] == 'admin' ? null : me()['id']; }
-// ใช้ใน: points.php, profile.php, recycle.php, admin/issues.php, admin/recycles.php, admin/users.php
-function pic($file, $size = 40, $icon = '👤', $link = false)
-{
-    if (!$file) return "<span class='pic' style='width:{$size}px;height:{$size}px;font-size:" . $size * .6 . "px'>$icon</span>";
-    $img = "<img class='pic' src='" . UP . "uploads/$file' width='$size' height='$size' alt=''>";
-    return $link ? "<a href='" . UP . "uploads/$file' target='_blank'>$img</a>" : $img;
-}
-// ใช้ใน: coupons.php, issue.php, notifications.php, points.php, profile.php, recycle.php
-function need_login() { if (!me()) go(UP . 'login.php', 'กรุณาเข้าสู่ระบบก่อน', 'warning'); return me(); }
-// ใช้ใน: admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php
 function need_admin() { if (need_login()['role'] != 'admin') go(UP . 'index.php', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'danger'); return me(); }
-// ใช้ใน: points.php, admin/index.php, admin/reports.php
 function box($label, $value) { echo "<div class='col-6 col-lg-3'><div class='card card-body box text-center mb-3'><small class='text-muted'>$label</small><h4 class='text-success mb-0'>$value</h4></div></div>"; }
-// ใช้ใน: admin/index.php, admin/reports.php
 function chart($title, $type, $labels, $data)
 {
     static $n = 0; $id = 'c' . ++$n;
@@ -150,5 +94,3 @@ function chart($title, $type, $labels, $data)
 }
 
 require_once __DIR__ . '/header.php';
-
-// ใช้ใน: coupons.php, forgot.php, index.php, issue.php, login.php, notifications.php, points.php, profile.php, recycle.php, register.php, admin/contents.php, admin/coupons.php, admin/green.php, admin/index.php, admin/issues.php, admin/recycles.php, admin/reports.php, admin/users.php

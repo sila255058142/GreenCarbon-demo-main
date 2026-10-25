@@ -17,9 +17,9 @@ if ($_POST && $member) {
 }
 
 // สมาชิกทุกคน (LEFT JOIN จึงรวมคนที่ยังไม่เคยแชท) n = จำนวนข้อความจากสมาชิกที่ผู้ดูแลยังไม่ได้อ่าน คนที่มีข้อความยังไม่อ่านอยู่บนสุด
-$threads = all("SELECT u.id, u.name, u.avatar, COALESCE(SUM(m.sender_id = u.id AND m.is_read = 0), 0) AS n, MAX(m.created_at) AS last
+$threads = all("SELECT u.id, u.name, COALESCE(SUM(m.sender_id = u.id AND m.is_read = 0), 0) AS n, MAX(m.created_at) AS last
     FROM users u LEFT JOIN messages m ON m.user_id = u.id
-    WHERE u.role = 'user' AND u.name LIKE ? GROUP BY u.id, u.name, u.avatar ORDER BY n DESC, last DESC, u.name", [like()]);
+    WHERE u.role = 'user' AND u.name LIKE ? GROUP BY u.id, u.name ORDER BY n DESC, last DESC, u.name", [like()]);
 
 head('แชทกับสมาชิก');
 ?>
@@ -29,7 +29,7 @@ head('แชทกับสมาชิก');
     <div class="list-group mb-3">
       <?php foreach ($threads as $t): ?>
         <a class="list-group-item list-group-item-action <?= $member && $member['id'] == $t['id'] ? 'active' : '' ?>" href="?user=<?= $t['id'] ?>">
-          <?= pic($t['avatar'], 32) ?> <?= e($t['name']) ?> <?php if ($t['n']): ?><span class="badge bg-danger"><?= $t['n'] ?></span><?php endif; ?><br><small><?= $t['last'] ? dt($t['last']) : 'ยังไม่มีข้อความ' ?></small>
+          <?= e($t['name']) ?> <?php if ($t['n']): ?><span class="badge bg-danger"><?= $t['n'] ?></span><?php endif; ?><br><small><?= $t['last'] ? dt($t['last']) : 'ยังไม่มีข้อความ' ?></small>
         </a>
       <?php endforeach; ?>
     </div>
@@ -38,7 +38,7 @@ head('แชทกับสมาชิก');
   <div class="col-lg-8">
     <?php if ($member): ?>
       <form method="post" class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0"><?= pic($member['avatar'], 36) ?> <?= e($member['name']) ?> <small class="text-muted"><?= e($member['email']) ?> · <?= e($member['phone']) ?></small></h5>
+        <h5 class="mb-0"><?= e($member['name']) ?> <small class="text-muted"><?= e($member['email']) ?> · <?= e($member['phone']) ?></small></h5>
         <button class="btn btn-sm btn-outline-danger" name="clear" onclick="return confirm('ลบแชททั้งหมดของสมาชิกคนนี้? กู้คืนไม่ได้')">🗑 ลบแชททั้งหมด</button>
       </form>
       <?php chat($member['id']) ?>

@@ -4,7 +4,7 @@ require 'init.php';
 $u = need_login();
 
 $sum = one("SELECT COUNT(*) AS n, COALESCE(SUM(co2_kg), 0) AS co2 FROM recycles WHERE status = 'done' AND user_id = ?", [$u['id']]);
-$top = all("SELECT id, name, avatar, points FROM users WHERE role = 'user' AND status = 'active' ORDER BY points DESC LIMIT 5");
+$top = all("SELECT id, name, points FROM users WHERE role = 'user' AND status = 'active' ORDER BY points DESC LIMIT 5");
 $medals = ['🥇', '🥈', '🥉', '4', '5'];
 $next = 0;
 foreach (LEVELS as $min => $name) if (!$next && $min > $u['points']) $next = $min;
@@ -12,7 +12,7 @@ foreach (LEVELS as $min => $name) if (!$next && $min > $u['points']) $next = $mi
 head('แต้มของฉัน', false);
 ?>
 <div class="hero text-center mb-4">
-  <?= pic($u['avatar'], 80) ?>
+  <div class="fs-1" aria-hidden="true">👤</div>
   <div class="fs-1 lh-sm"><?= level($u['points']) ?></div>
   <p class="lead"><?= $u['points'] ?> แต้ม<?= $next ? ' · อีก ' . ($next - $u['points']) . ' แต้ม จะเลื่อนเป็น ' . LEVELS[$next] : ' · ระดับสูงสุดแล้ว' ?></p>
   <?php if ($next): ?>
@@ -30,7 +30,7 @@ head('แต้มของฉัน', false);
       <h5>🏅 อันดับสมาชิกแต้มสูงสุด</h5>
       <table class="table mb-0">
         <?php foreach ($top as $i => $t): ?>
-          <tr class="<?= $t['id'] == $u['id'] ? 'table-success' : '' ?>"><td><?= $medals[$i] ?></td><td><?= pic($t['avatar'], 32) ?> <?= e($t['name']) ?></td><td><?= level($t['points']) ?></td><td class="text-end"><?= $t['points'] ?> แต้ม</td></tr>
+          <tr class="<?= $t['id'] == $u['id'] ? 'table-success' : '' ?>"><td><?= $medals[$i] ?></td><td><?= e($t['name']) ?></td><td><?= level($t['points']) ?></td><td class="text-end"><?= $t['points'] ?> แต้ม</td></tr>
         <?php endforeach; ?>
       </table>
     </div>

@@ -1,5 +1,5 @@
 <?php
-// จัดการรีไซเคิล: ดูรูปสินค้า ตรวจรับด้วยน้ำหนักที่ชั่งจริง (ให้แต้ม + บันทึกคาร์บอนที่ลดได้) หรือปฏิเสธ แล้วแจ้งเตือนสมาชิก
+// จัดการรีไซเคิล: ตรวจรับด้วยน้ำหนักที่ชั่งจริง (ให้แต้ม + บันทึกคาร์บอนที่ลดได้) หรือปฏิเสธ แล้วแจ้งเตือนสมาชิก
 require '../init.php';
 need_admin();
 
@@ -42,10 +42,10 @@ search("<select class='form-select w-auto' name='status'>$options</select>");
 ?>
 <div class="table-responsive">
 <table class="table table-striped bg-white align-middle">
-  <tr><th>รูป</th><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
+  <tr><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
   <?php foreach ($rows as $r): ?>
     <tr>
-      <td><?= pic($r['image'], 64, '📦', true) ?></td><td><?= dt($r['created_at']) ?></td><td><?= e($r['member']) ?></td><td><?= e($r['item_name']) ?></td><td><?= e($r['category']) ?></td>
+      <td><?= dt($r['created_at']) ?></td><td><?= e($r['member']) ?></td><td><?= e($r['item_name']) ?></td><td><?= e($r['category']) ?></td>
       <td><?= $r['weight_kg'] ?></td><td><?= STATUS[$r['status']] ?></td><td><?= $r['points'] ?></td><td><?= $r['co2_kg'] ?></td>
       <td><?php if ($r['status'] == 'pending'): ?>
         <form method="post" class="d-flex gap-1">

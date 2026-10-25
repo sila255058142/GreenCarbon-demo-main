@@ -35,7 +35,7 @@ function head($title, $show = true) {
                             🔔 <span class="badge bg-danger"><?= val('SELECT COUNT(*) FROM notifications WHERE is_read = 0 AND user_id <=> ?', [inbox()]) ?></span>
                         </a>
                         <span class="navbar-text text-white mx-2">
-                            <?= pic($u['avatar'], 28) ?> <?= e($u['name']) ?>
+                            <?= e($u['name']) ?>
                         </span>
                         <a class="nav-link" href="<?= UP ?>logout.php">ออกจากระบบ</a>
                     <?php endif; ?>

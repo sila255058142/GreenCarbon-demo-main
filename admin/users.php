@@ -18,7 +18,7 @@ search();
   <tr><th>ชื่อ</th><th>อีเมล</th><th>เบอร์โทร</th><th>แต้ม</th><th>ระดับ</th><th>วันที่สมัคร</th><th>สถานะ</th><th></th></tr>
   <?php foreach ($rows as $r): ?>
     <tr>
-      <td><?= pic($r['avatar'], 36) ?> <?= e($r['name']) ?></td><td><?= e($r['email']) ?></td><td><?= e($r['phone']) ?></td><td><?= $r['points'] ?></td>
+      <td><?= e($r['name']) ?></td><td><?= e($r['email']) ?></td><td><?= e($r['phone']) ?></td><td><?= $r['points'] ?></td>
       <td><?= level($r['points']) ?></td><td><?= dt($r['created_at']) ?></td><td><?= STATUS[$r['status']] ?></td>
       <td><form method="post"><input type="hidden" name="id" value="<?= $r['id'] ?>">
         <button class="btn btn-sm btn-outline-<?= $r['status'] == 'active' ? 'danger' : 'success' ?>" onclick="return confirm('ยืนยันเปลี่ยนสถานะ?')"><?= $r['status'] == 'active' ? 'ระงับสิทธิ์' : 'ยกเลิกระงับ' ?></button></form></td>

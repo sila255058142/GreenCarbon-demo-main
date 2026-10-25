@@ -4,9 +4,7 @@ $u = need_login();
 
 if (isset($_POST['save'])) {
     if ($err = check_user($u['id'])) go('profile.php', $err, 'danger');
-    $avatar = upload('avatar');
-    if (!$avatar && bad_upload('avatar')) go('profile.php', bad_upload('avatar'), 'danger');
-    q('UPDATE users SET name = ?, email = ?, phone = ?, avatar = ? WHERE id = ?', [p('name'), p('email'), p('phone'), $avatar ?: $u['avatar'], $u['id']]);
+    q('UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?', [p('name'), p('email'), p('phone'), $u['id']]);
     go('profile.php', 'บันทึกโปรไฟล์แล้ว');
 }
 if (isset($_POST['change'])) {
@@ -20,9 +18,8 @@ head('โปรไฟล์ของฉัน');
 ?>
 <div class="row">
   <div class="col-lg-6">
-    <form method="post" enctype="multipart/form-data" class="card card-body mb-3">
-      <div class="text-center"><?= pic($u['avatar'], 110, '👤', true) ?><div class="mt-2"><?= level($u['points']) ?> · <?= $u['points'] ?> แต้ม</div></div>
-      <?php input('เปลี่ยนรูปโปรไฟล์ (JPG PNG GIF ไม่เกิน 2MB)', 'avatar', 'file', '', 'accept="image/*"') ?>
+    <form method="post" class="card card-body mb-3">
+      <div class="text-center"><div class="fs-1">👤</div><div class="mt-2"><?= level($u['points']) ?> · <?= $u['points'] ?> แต้ม</div></div>
       <?php input('ชื่อ-นามสกุล', 'name', 'text', $u['name']) ?>
       <?php input('อีเมล', 'email', 'email', $u['email']) ?>
       <?php input('เบอร์โทรศัพท์ (ตัวเลข 10 หลัก)', 'phone', 'text', $u['phone'], 'required pattern="0[0-9]{9}" maxlength="10" inputmode="numeric" title="ตัวเลข 10 หลัก ขึ้นต้นด้วย 0"') ?>

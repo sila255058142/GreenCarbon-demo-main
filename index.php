@@ -9,7 +9,7 @@ $featuredNews = $news ? array_shift($news) : null;
 $sum = one("SELECT COUNT(*) AS n, COALESCE(SUM(weight_kg), 0) AS kg, COALESCE(SUM(co2_kg), 0) AS co2 FROM recycles WHERE status = 'done'");
 $memberCount = val("SELECT COUNT(*) FROM users WHERE role = 'user'");
 $steps = [
-    ['📦', '1. แจ้งรายการ', 'เลือกหมวด กรอกน้ำหนัก และแนบรูปอุปกรณ์ที่ต้องการส่ง', 'recycle.php#recycle-form'],
+    ['📦', '1. แจ้งรายการ', 'เลือกหมวดและกรอกข้อมูลอุปกรณ์ที่ต้องการส่งรีไซเคิล', 'recycle.php#recycle-form'],
     ['🔎', '2. รอตรวจรับ', 'ทีมงานตรวจสอบข้อมูลและยืนยันรายการรีไซเคิล', 'recycle.php'],
     ['🏆', '3. รับแต้มและเติบโต', 'เมื่อรายการสำเร็จ รับแต้มสะสมเพื่อแลกของรางวัล', 'points.php'],
 ];
