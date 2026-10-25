@@ -81,14 +81,13 @@ function check_pass() {
 }
 function upload($field) {
     $file = $_FILES[$field] ?? null;
-    if (!$file || $file['error'] !== UPLOAD_ERR_OK || $file['size'] > 2 * 1024 * 1024) return '';
-    $types = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_GIF => 'gif'];
-    $img = getimagesize($file['tmp_name']);
-    if (!$img || !isset($types[$img[2]])) return '';
-    $name = uniqid() . '.' . $types[$img[2]];
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $name = uniqid() . ($ext ? '.' . strtolower($ext) : '');
     return move_uploaded_file($file['tmp_name'], __DIR__ . "/uploads/$name") ? $name : '';
 }
-function bad_upload($field) { return !empty($_FILES[$field]['name']) ? 'รูปต้องเป็นไฟล์ JPG PNG หรือ GIF ขนาดไม่เกิน 2MB' : ''; }
+function bad_upload($field) { 
+    return !empty($_FILES[$field]['name']) ? 'รูปต้องเป็นไฟล์ JPG PNG หรือ GIF เท่านั้น' : ''; 
+}
 
 // Business Logic Functions
 function notify($to, $title, $msg, $link = '') {
