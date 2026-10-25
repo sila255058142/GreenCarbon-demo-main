@@ -19,11 +19,10 @@ const MENU_ADMIN = ['admin/index.php' => 'Dashboard', 'admin/users.php' => 'ส�
 
 // Core Query Helper (ใช้ query($db, $sql, $p) เป็นศูนย์กลาง)
 function query($db, $sql, $p = []) {
-    if (empty($p)) return $db->query($sql);
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param(str_repeat('s', count($p)), ...$p);
-    $stmt->execute();
-    return $stmt->get_result() ?: true;
+    if (!$p) return $db->query($sql);
+    ($s = $db->prepare($sql))->bind_param(str_repeat('s', count($p)), ...$p);
+    $s->execute();
+    return $s->get_result() ?: true;
 }
 
 function q($sql, $p = []) { global $db; return query($db, $sql, $p); }

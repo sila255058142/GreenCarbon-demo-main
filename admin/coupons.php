@@ -7,16 +7,29 @@ expire_coupons();
 if (isset($_POST['save_reward'])) {
     $title = p('title'); $description = p('description'); $cost = p('points_cost');
     $stock = p('stock'); $days = p('coupon_valid_days'); $id = p('id');
+
     if (mb_strlen($title) < 2 || mb_strlen($description) > 500 || !ctype_digit($cost) || (int) $cost < 1
         || ($stock !== '' && (!ctype_digit($stock) || (int) $stock < 0))
         || !ctype_digit($days) || (int) $days < 1 || (int) $days > 365) {
         go('coupons.php', 'กรุณาตรวจสอบชื่อ แต้ม จำนวนสต็อก และวันหมดอายุ (1-365 วัน)', 'danger');
     }
-    $sql = $id
-        ? 'UPDATE rewards SET title = ?, description = ?, points_cost = ?, stock = ?, coupon_valid_days = ? WHERE id = ?'
-        : 'INSERT INTO rewards (title, description, points_cost, stock, coupon_valid_days) VALUES (?, ?, ?, ?, ?)';
-    $values = [$title, $description, (int) $cost, $stock === '' ? null : (int) $stock, (int) $days];
-    if ($id) $values[] = $id;
+// var_dump($_FILES['image']); exit;
+    $image = upload('image');
+    if (!$image && bad_upload('image')) go('coupons.php', bad_upload('image'), 'danger');
+
+    if ($id) {
+        // กรณีแก้ไข: ถ้าไม่ได้อัปโหลดรูปใหม่ ให้เก็บรูปเดิมไว้
+        $old_img = val('SELECT image FROM rewards WHERE id = ?', [$id]);
+        $image = $image ?: $old_img;
+        $sql = 'UPDATE rewards SET title = ?, description = ?, points_cost = ?, stock = ?, coupon_valid_days = ?, image = ? WHERE id = ?';
+        $values = [$title, $description, (int) $cost, $stock === '' ? null : (int) $stock, (int) $days, $image, $id];
+    } else {
+        // กรณีเพิ่มใหม่
+        $sql = 'INSERT INTO rewards (title, description, points_cost, stock, coupon_valid_days, image) VALUES (?, ?, ?, ?, ?, ?)';
+        $values = [$title, $description, (int) $cost, $stock === '' ? null : (int) $stock, (int) $days, $image];
+    }
+
+    // ทำการบันทึกข้อมูลลงฐานข้อมูลก่อน แล้วค่อย Redirect
     q($sql, $values);
     go('coupons.php', 'บันทึกของรางวัลแล้ว');
 }
@@ -71,7 +84,7 @@ head('จัดการคูปอง');
 ?>
 <h5>🎁 จัดการของรางวัล</h5>
 <?php foreach (array_merge($rewards, [null]) as $r): $newReward = $r === null; ?>
-  <form method="post" class="card card-body <?= $newReward ? 'mb-4' : 'mb-2' ?>">
+  <form method="post" class="card card-body <?= $newReward ? 'mb-4' : 'mb-2' ?>"  enctype="multipart/form-data">
     <?php if ($newReward): ?><h6>➕ เพิ่มของรางวัล</h6><?php else: ?><input type="hidden" name="id" value="<?= $r['id'] ?>"><?php endif; ?>
   <div class="row g-2 align-items-end">
     <div class="col-md-3"><label class="form-label">ชื่อของรางวัล</label><input class="form-control" name="title" value="<?= e($r['title'] ?? '') ?>" required minlength="2"></div>
@@ -79,9 +92,9 @@ head('จัดการคูปอง');
     <div class="col-md-2"><label class="form-label">แต้มที่ใช้</label><input class="form-control" name="points_cost" type="number" min="1" value="<?= $r['points_cost'] ?? '' ?>" required></div>
     <div class="col-md-2"><label class="form-label">สต็อก (ว่าง=ไม่จำกัด)</label><input class="form-control" name="stock" type="number" min="0" value="<?= e($r['stock'] ?? '') ?>"></div>
     <div class="col-md-2"><label class="form-label">อายุคูปอง (วัน)</label><input class="form-control" name="coupon_valid_days" type="number" min="1" max="365" value="<?= $r['coupon_valid_days'] ?? 30 ?>" required></div>
-    <div class="col-12 d-flex gap-1">
+     <?php input('รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
       <button class="btn btn-success" name="save_reward"><?= $newReward ? 'เพิ่มรางวัล' : 'บันทึก' ?></button>
-      <?php if (!$newReward): ?><button class="btn btn-outline-secondary" name="toggle_reward"><?= $r['is_active'] ? 'ปิด' : 'เปิด' ?></button><?php endif; ?>
+      <?php if (!$newReward): ?><button class="btn btn-outline-secondary" name="toggle_reward"><?= $r['is_active'] ? 'ปิด' : 'เปิดป' ?></button><?php endif; ?>
     </div>
   </div>
   <?php if (!$newReward): ?><small class="text-muted mt-2">สถานะ: <?= $r['is_active'] ? 'เปิดให้แลก' : 'ปิดรับแลก' ?> · คงเหลือ <?= $r['stock'] === null ? 'ไม่จำกัด' : number_format($r['stock']) ?> ชิ้น</small><?php endif; ?>
@@ -101,7 +114,7 @@ head('จัดการคูปอง');
         <td><?= $r['coupon_code'] ? '<code>' . e($r['coupon_code']) . '</code>' . ($r['expires_at'] ? '<br><small>' . dt($r['expires_at']) . '</small>' : '') : '-' ?></td>
         <td><?= $r['status'] == 'used' ? e($r['recipient_name']) . '<br>' . e($r['recipient_phone']) . '<br>' . nl2br(e($r['shipping_address'])) : '-' ?></td>
         <td><?php if ($r['status'] == 'pending'): ?>
-          <form method="post" class="d-flex gap-1">
+          <form method="post" class="d-flex gap-1 ">
             <input type="hidden" name="id" value="<?= $r['id'] ?>">
             <button class="btn btn-sm btn-success" name="review">อนุมัติ</button>
             <button class="btn btn-sm btn-outline-danger" name="reject" onclick="return confirm('ไม่อนุมัติและคืนแต้มให้สมาชิก?')">ไม่อนุมัติ</button>
