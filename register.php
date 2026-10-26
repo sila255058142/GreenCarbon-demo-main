@@ -3,6 +3,7 @@ require 'init.php';
 
 if ($_POST) {
     $err = check_user() ?: check_pass();
+    print_r($err); exit;
     if (!$err && (!in_array(p('question'), QUESTIONS) || mb_strlen(p('answer')) < 2)) $err = 'กรุณาเลือกคำถามกันลืมรหัสผ่าน และกรอกคำตอบ';
     if (!$err) {
         q('INSERT INTO users (name, email, phone, password, question, answer) VALUES (?, ?, ?, ?, ?, ?)',
