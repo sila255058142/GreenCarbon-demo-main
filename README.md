@@ -148,7 +148,7 @@ erDiagram
     users ||--o{ contents : "สร้าง"
     users ||--o{ notifications : "ได้รับ"
     users ||--o{ coupon_redemptions : "แลกแต้ม"
-    users ||--o{ point_transactions : "ประวัติแต้ม"
+    users ||--o{   : "ประวัติแต้ม"
     categories ||--o{ recycles : "หมวด"
     rewards ||--o{ coupon_redemptions : "ของรางวัล"
 ```

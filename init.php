@@ -69,7 +69,6 @@ function chart($title, $type, $labels, $data) {
 
 // Validation & Upload
 function check_user($id = 0) {
-    if (mb_strlen(p('name')) < 2) return 'กรุณากรอกชื่อ-นามสกุล';
     if (!filter_var(p('email'), FILTER_VALIDATE_EMAIL)) return 'รูปแบบอีเมลไม่ถูกต้อง';
     if (val('SELECT 1 FROM users WHERE email = ? AND id <> ?', [p('email'), $id])) return 'อีเมลนี้ถูกใช้สมัครแล้ว';
     return preg_match('/^0\d{9}$/', p('phone')) ? '' : 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก ขึ้นต้นด้วย 0';
