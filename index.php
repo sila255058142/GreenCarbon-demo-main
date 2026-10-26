@@ -127,7 +127,7 @@ head('หน้าแรก', false);
 
   <?php if ($featuredNews): ?>
     <article class="card article-feature row g-0 m-0 overflow-hidden mb-4">
-      <div class="article-art col-md-5 d-grid" aria-hidden="true">
+      <div class="article-art col-md-5 d-grid w-100 h-100 align-items-center justify-content-center position-relative" aria-hidden="true">
         <span class="article-art-orbit"></span>
         <span class="article-art-icon">♻️</span>
         <span class="article-art-leaf">✦</span>

@@ -41,6 +41,7 @@ head('แชทกับสมาชิก');
         <h5 class="mb-0"><?= e($member['name']) ?> <small class="text-muted"><?= e($member['email']) ?> · <?= e($member['phone']) ?></small></h5>
         <button class="btn btn-sm btn-outline-danger" name="clear" onclick="return confirm('ลบแชททั้งหมดของสมาชิกคนนี้? กู้คืนไม่ได้')">🗑 ลบแชททั้งหมด</button>
       </form>
+      <?php chat($member['id']) ?>
     <?php else: ?>
       <div class="alert alert-success">เลือกสมาชิกจากรายการเพื่ออ่าน ตอบกลับ หรือเริ่มแชท</div>
     <?php endif; ?>
