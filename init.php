@@ -1,7 +1,7 @@
 <?php
 session_start();
 // เชื่อมต่อด้วย mysqli และตั้งค่า Charset
-$db = new mysqli('localhost', 'root', '', 'greenloop');
+$db = new mysqli('localhost', 'root', '', 'green_loop');
 
 
 define('UP', str_contains($_SERVER['SCRIPT_NAME'], '/admin/') ? '../' : '');
