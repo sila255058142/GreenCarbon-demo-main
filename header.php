@@ -8,47 +8,47 @@ function head($title, $show = true) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $title ?> | GreenLoop</title>
+    <base href="<?= UP ?>">
     <link rel="stylesheet" href="assets/bootstrap.min.css">
     <link rel="stylesheet" href="assets/style.css">
     <script src="assets/chart.umd.js"></script>
-    <script src="assets/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark d-print-none">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="../index.php">♻ GreenLoop</a>
+            <a class="navbar-brand fw-bold" href="index.php">♻ GreenLoop</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="menu">
                 <div class="navbar-nav me-auto">
                     <?php if ($u && $u['role'] == 'admin'): ?>
-                        <a class="nav-link" href="../admin/index.php">Dashboard</a>
-                        <a class="nav-link" href="../admin/users.php">สมาชิก</a>
-                        <a class="nav-link" href="../admin/contents.php">เนื้อหา</a>
-                        <a class="nav-link" href="../admin/green.php">ตั้งค่า Green</a>
-                        <a class="nav-link" href="../admin/recycles.php">รีไซเคิล</a>
-                        <a class="nav-link" href="../admin/coupons.php">คูปอง</a>
-                        <a class="nav-link" href="../admin/reports.php">รายงาน</a>
+                        <a class="nav-link" href="admin/index.php">Dashboard</a>
+                        <a class="nav-link" href="admin/users.php">สมาชิก</a>
+                        <a class="nav-link" href="admin/contents.php">เนื้อหา</a>
+                        <a class="nav-link" href="admin/green.php">ตั้งค่า Green</a>
+                        <a class="nav-link" href="admin/recycles.php">รีไซเคิล</a>
+                        <a class="nav-link" href="admin/coupons.php">คูปอง</a>
+                        <a class="nav-link" href="admin/reports.php">รายงาน</a>
                     <?php elseif ($u): ?>
-                        <a class="nav-link" href="../recycle.php">♻️ รีไซเคิล</a>
-                        <a class="nav-link" href="../points.php">🏆 แต้มของฉัน</a>
-                        <a class="nav-link" href="../coupons.php">🎟️  แลกคูปอง</a>
-                        <a class="nav-link" href="../profile.php">👤 โปรไฟล์</a>
+                        <a class="nav-link" href="recycle.php">♻️ รีไซเคิล</a>
+                        <a class="nav-link" href="points.php">🏆 แต้มของฉัน</a>
+                        <a class="nav-link" href="coupons.php">🎟️  แลกคูปอง</a>
+                        <a class="nav-link" href="profile.php">👤 โปรไฟล์</a>
                     <?php endif; ?>
                 </div>
                 <div class="navbar-nav align-items-lg-center">
                     <?php if (!$u): ?>
-                        <a class="nav-link" href="../login.php">เข้าสู่ระบบ</a>
-                        <a class="nav-link" href="../register.php">สมัครสมาชิก</a>
+                        <a class="nav-link" href="login.php">เข้าสู่ระบบ</a>
+                        <a class="nav-link" href="register.php">สมัครสมาชิก</a>
                     <?php else: ?>
-                        <a class="nav-link" href="../notifications.php">
+                        <a class="nav-link" href="notifications.php">
                             🔔 <span class="badge bg-danger"><?= val('SELECT COUNT(*) FROM notifications WHERE is_read = 0 AND user_id <=> ?', [inbox()]) ?></span>
                         </a>
                         <span class="navbar-text text-white mx-2">
                             <?= e($u['name']) ?>
                         </span>
-                        <a class="nav-link" href="../logout.php">ออกจากระบบ</a>
+                        <a class="nav-link" href="logout.php">ออกจากระบบ</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -67,4 +67,4 @@ function head($title, $show = true) {
 <?php
 }
 
-function foot() { echo '</main><footer class="text-center text-muted small py-4 d-print-none">♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน</footer><script src="../assets/bootstrap.bundle.min.js"></script></body></html>'; }
+function foot() { echo '</main><footer class="text-center text-muted small py-4 d-print-none">♻ GreenLoop · วัดคาร์บอน ลดด้วยการรีไซเคิล เพื่อโลกที่ยั่งยืน</footer><script src="assets/bootstrap.bundle.min.js"></script></body></html>'; }
