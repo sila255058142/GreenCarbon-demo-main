@@ -6,26 +6,26 @@ expire_coupons($u['id']);
 
 if (isset($_POST['redeem'])) {
     $rewardId = (int) p('reward_id');
-    $db->beginTransaction();
+    $db->begin_transaction();
     $lockedUser = one('SELECT id, points FROM users WHERE id = ? FOR UPDATE', [$u['id']]);
     if (!$lockedUser) {
-        $db->rollBack();
+        $db->rollback();
         go('login.php', 'ไม่พบบัญชีผู้ใช้ กรุณาเข้าสู่ระบบอีกครั้ง', 'warning');
     }
     $reward = one('SELECT id, title, points_cost, stock FROM rewards WHERE id = ? AND is_active = 1 FOR UPDATE', [$rewardId]);
     if (!$reward || ($reward['stock'] !== null && (int) $reward['stock'] < 1)) {
-        $db->rollBack();
+        $db->rollback();
         go('coupons.php', 'ไม่พบของรางวัลนี้ ปิดรับแลกแล้ว หรือของรางวัลหมด', 'danger');
     }
     if ((int) $lockedUser['points'] < (int) $reward['points_cost']) {
-        $db->rollBack();
+        $db->rollback();
         go('coupons.php', 'แต้มของคุณไม่เพียงพอสำหรับแลกรางวัลนี้', 'danger');
     }
     q('UPDATE users SET points = points - ? WHERE id = ?', [$reward['points_cost'], $u['id']]);
     if ($reward['stock'] !== null) q('UPDATE rewards SET stock = stock - 1 WHERE id = ? AND stock > 0', [$reward['id']]);
     q("INSERT INTO coupon_redemptions (user_id, reward_id, points_spent, stock_reserved) VALUES (?, ?, ?, ?)",
         [$u['id'], $reward['id'], $reward['points_cost'], $reward['stock'] === null ? 0 : 1]);
-    $redemptionId = $db->lastInsertId();
+    $redemptionId = $db->insert_id;
     q("INSERT INTO point_transactions (user_id, amount, description, related_type, related_id) VALUES (?, ?, ?, 'coupon', ?)",
         [$u['id'], -$reward['points_cost'], 'แลกของรางวัล: ' . $reward['title'], $redemptionId]);
     $db->commit();
@@ -42,11 +42,11 @@ if (isset($_POST['claim'])) {
         go('coupons.php', 'กรุณากรอกชื่อผู้รับ เบอร์โทร และที่อยู่จัดส่งให้ครบถ้วน', 'danger');
     }
 
-    $db->beginTransaction();
+    $db->begin_transaction();
     $coupon = one("SELECT id, reward_id, status, expires_at, stock_reserved FROM coupon_redemptions
         WHERE coupon_code = ? AND user_id = ? FOR UPDATE", [$code, $u['id']]);
     if (!$coupon || $coupon['status'] != 'approved') {
-        $db->rollBack();
+        $db->rollback();
         go('coupons.php', 'ไม่พบคูปองที่ยังใช้ได้ในบัญชีของคุณ', 'danger');
     }
     if ($coupon['expires_at'] && strtotime($coupon['expires_at']) <= time()) {

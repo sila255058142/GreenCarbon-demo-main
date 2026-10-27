@@ -57,17 +57,17 @@ function level($points) {
     return $lv;
 }
 
-function need_login() { return me() ?: go(UP . 'login.php', 'กรุณาเข้าสู่ระบบก่อน', 'warning'); }
-function need_admin() { return (need_login()['role'] === 'admin') ? me() : go(UP . 'index.php', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'danger'); }
-function inbox() { return me()['role'] === 'admin' ? null : me()['id']; }
-
-// UI Components
-function search($extra = '') { echo "<form class='d-flex flex-wrap gap-2 mb-3 d-print-none'>$extra<input class='form-control w-auto' name='q' value='" . e(g('q')) . "' placeholder='ค้นหา...'><button class='btn btn-success'>ค้นหา</button></form>"; }
 function question($selected = '') {
     echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>";
     foreach (QUESTIONS as $t) echo "<option" . ($t == $selected ? ' selected' : '') . ">$t</option>";
     echo '</select>';
 }
+function need_login() { return me() ?: go('login.php', 'กรุณาเข้าสู่ระบบก่อน', 'warning'); }
+function need_admin() { return (need_login()['role'] === 'admin') ? me() : go(UP . 'index.php', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'danger'); }
+function inbox() { return me()['role'] === 'admin' ? null : me()['id']; }
+
+// UI Components
+function search($extra = '') { echo "<form class='d-flex flex-wrap gap-2 mb-3 d-print-none'>$extra<input class='form-control w-auto' name='q' value='" . e(g('q')) . "' placeholder='ค้นหา...'><button class='btn btn-success'>ค้นหา</button></form>"; }
 function box($label, $value) { echo "<div class='col-6 col-lg-3'><div class='card card-body box text-center mb-3'><small class='text-muted'>$label</small><h4 class='text-success mb-0'>$value</h4></div></div>"; }
 function chart($title, $type, $labels, $data) {
     static $n = 0; $id = 'c' . ++$n;

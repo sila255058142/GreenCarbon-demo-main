@@ -38,10 +38,10 @@ if (isset($_POST['toggle_reward'])) {
     go('coupons.php', 'เปลี่ยนสถานะของรางวัลแล้ว');
 }
 if (isset($_POST['review'])) {
-    $db->beginTransaction();
+    $db->begin_transaction();
     $request = one('SELECT * FROM coupon_redemptions WHERE id = ? FOR UPDATE', [p('id')]);
     if (!$request || $request['status'] != 'pending') {
-        $db->rollBack();
+        $db->rollback();
         go('coupons.php', 'คำขอนี้ถูกดำเนินการแล้วหรือไม่พบคำขอ', 'danger');
     }
 
