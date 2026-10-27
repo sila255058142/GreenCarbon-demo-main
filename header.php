@@ -23,13 +23,18 @@ function head($title, $show = true) {
             <div class="collapse navbar-collapse" id="menu">
                 <div class="navbar-nav me-auto">
                     <?php if ($u && $u['role'] == 'admin'): ?>
-                        <a class="nav-link" href="../admin/index.php">แดชบอร์ด</a>
-                        <a class="nav-link" href="../admin/users.php">ผู้ใช้</a>
-                        <a class="nav-link" href="../admin/recycle.php">คำขอรีไซเคิล</a>
+                        <a class="nav-link" href="../admin/index.php">Dashboard</a>
+                        <a class="nav-link" href="../admin/users.php">สมาชิก</a>
+                        <a class="nav-link" href="../admin/contents.php">เนื้อหา</a>
+                        <a class="nav-link" href="../admin/green.php">ตั้งค่า Green</a>
+                        <a class="nav-link" href="../admin/recycles.php">รีไซเคิล</a>
+                        <a class="nav-link" href="../admin/coupons.php">คูปอง</a>
+                        <a class="nav-link" href="../admin/reports.php">รายงาน</a>
                     <?php elseif ($u): ?>
-                        <a class="nav-link" href="../recycle.php">รีไซเคิล</a>
-                        <a class="nav-link" href="../points.php">Green Point</a>
-                        <a class="nav-link" href="../profile.php">โปรไฟล์</a>
+                        <a class="nav-link" href="../recycle.php">♻️ รีไซเคิล</a>
+                        <a class="nav-link" href="../points.php">🏆 แต้มของฉัน</a>
+                        <a class="nav-link" href="../coupons.php">🎟️  แลกคูปอง</a>
+                        <a class="nav-link" href="../profile.php">👤 โปรไฟล์</a>
                     <?php endif; ?>
                 </div>
                 <div class="navbar-nav align-items-lg-center">
