@@ -99,8 +99,10 @@ head('แลกคูปอง');
 <form method="post" class="card card-body mb-4">
   <label class="form-label" for="claim-code">รหัสคูปอง</label>
   <input class="form-control" id="claim-code" name="coupon_code" required maxlength="32" autocomplete="off">
-  <?php input('ชื่อผู้รับ', 'recipient_name', 'text', '', 'required maxlength="100"') ?>
-  <?php input('เบอร์โทรศัพท์ผู้รับ', 'recipient_phone', 'tel', '', 'required maxlength="20" pattern="[0-9+() -]{8,20}"') ?>
+  <label class="form-label mt-2">ชื่อผู้รับ</label>
+  <input class="form-control" type="text" name="recipient_name" value="" required maxlength="100">
+  <label class="form-label mt-2">เบอร์โทรศัพท์ผู้รับ</label>
+  <input class="form-control" type="tel" name="recipient_phone" value="" required maxlength="20" pattern="[0-9+() -]{8,20}">
   <label class="form-label mt-2" for="shipping-address">ที่อยู่จัดส่ง</label>
   <textarea class="form-control" id="shipping-address" name="shipping_address" rows="3" required maxlength="500"></textarea>
   <button class="btn btn-success mt-3 align-self-start" name="claim">ยืนยันใช้คูปอง</button>

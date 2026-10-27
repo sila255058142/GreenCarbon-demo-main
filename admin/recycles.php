@@ -4,10 +4,10 @@ require '../init.php';
 need_admin();
 
 if ($_POST) {
-    $db->beginTransaction();
+    $db->begin_transaction();
     $r = one("SELECT r.*, c.co2_per_kg FROM recycles r JOIN categories c ON c.id = r.category_id WHERE r.id = ? AND r.status = 'pending' FOR UPDATE", [p('id')]);
     if (!$r) {
-        $db->rollBack();
+        $db->rollback();
         go('recycles.php', 'ทำรายการไม่ได้', 'danger');
     }
     if (isset($_POST['reject'])) {
@@ -18,7 +18,7 @@ if ($_POST) {
     }
     $kg = (float) p('weight_kg');
     if ($kg <= 0) {
-        $db->rollBack();
+        $db->rollback();
         go('recycles.php', 'กรุณาตรวจสอบน้ำหนัก', 'danger');
     }
     $points = round($kg * POINT_PER_KG);

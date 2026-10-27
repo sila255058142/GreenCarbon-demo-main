@@ -13,11 +13,15 @@ if ($_POST) {
 head('ลืมรหัสผ่าน');
 ?>
 <form method="post" class="card card-body mx-auto" style="max-width:420px">
-  <?php input('อีเมลที่ใช้สมัคร', 'email', 'email') ?>
+  <label class="form-label mt-2">อีเมลที่ใช้สมัคร</label>
+  <input class="form-control" type="email" name="email" value="" required>
   <?php question() ?>
-  <?php input('คำตอบ', 'answer') ?>
-  <?php input('รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)', 'password', 'password', '', 'required minlength="8"') ?>
-  <?php input('ยืนยันรหัสผ่านใหม่', 'password2', 'password') ?>
+  <label class="form-label mt-2">คำตอบ</label>
+  <input class="form-control" type="text" name="answer" value="" required>
+  <label class="form-label mt-2">รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)</label>
+  <input class="form-control" type="password" name="password" value="" required minlength="8">
+  <label class="form-label mt-2">ยืนยันรหัสผ่านใหม่</label>
+  <input class="form-control" type="password" name="password2" value="" required>
   <button class="btn btn-success mt-3">ตั้งรหัสผ่านใหม่</button>
 </form>
 <?php foot() ?>

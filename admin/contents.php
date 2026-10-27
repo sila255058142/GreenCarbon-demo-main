@@ -28,12 +28,19 @@ head('จัดการเนื้อหา');
 <form method="post" class="card card-body mb-4">
   <h5><?= $edit['id'] ? 'แก้ไขเนื้อหา' : 'เพิ่มเนื้อหา' ?></h5>
   <input type="hidden" name="id" value="<?= $edit['id'] ?>">
-  <?php input('หัวข้อ', 'title', 'text', $edit['title'], 'required minlength="3"') ?>
+  <label class="form-label mt-2">หัวข้อ</label>
+  <input class="form-control" type="text" name="title" value="<?= e($edit['title']) ?>" required minlength="3">
   <label class="form-label mt-2">เนื้อหา</label>
   <textarea class="form-control" name="body" rows="3" required><?= e($edit['body']) ?></textarea>
   <div class="row">
-    <div class="col-md-6"><?php input('เริ่มแสดงผล', 'start_at', 'datetime-local', $local($edit['start_at'])) ?></div>
-    <div class="col-md-6"><?php input('สิ้นสุดการแสดงผล (เว้นว่าง = ไม่มีกำหนด)', 'end_at', 'datetime-local', $local($edit['end_at']), '') ?></div>
+    <div class="col-md-6">
+      <label class="form-label mt-2">เริ่มแสดงผล</label>
+      <input class="form-control" type="datetime-local" name="start_at" value="<?= e($local($edit['start_at'])) ?>" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label mt-2">สิ้นสุดการแสดงผล (เว้นว่าง = ไม่มีกำหนด)</label>
+      <input class="form-control" type="datetime-local" name="end_at" value="<?= e($local($edit['end_at'])) ?>">
+    </div>
   </div>
   <div class="mt-3"><button class="btn btn-success">บันทึก</button> <a class="btn btn-outline-secondary" href="contents.php">ล้างฟอร์ม</a></div>
 </form>

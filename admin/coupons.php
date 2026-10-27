@@ -92,7 +92,8 @@ head('จัดการคูปอง');
     <div class="col-md-2"><label class="form-label">แต้มที่ใช้</label><input class="form-control" name="points_cost" type="number" min="1" value="<?= $r['points_cost'] ?? '' ?>" required></div>
     <div class="col-md-2"><label class="form-label">สต็อก (ว่าง=ไม่จำกัด)</label><input class="form-control" name="stock" type="number" min="0" value="<?= e($r['stock'] ?? '') ?>"></div>
     <div class="col-md-2"><label class="form-label">อายุคูปอง (วัน)</label><input class="form-control" name="coupon_valid_days" type="number" min="1" max="365" value="<?= $r['coupon_valid_days'] ?? 30 ?>" required></div>
-     <?php input('รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
+     <label class="form-label mt-2">รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)</label>
+     <input class="form-control" type="file" name="image" value="" accept="image/*">
       <button class="btn btn-success" name="save_reward"><?= $newReward ? 'เพิ่มรางวัล' : 'บันทึก' ?></button>
       <?php if (!$newReward): ?><button class="btn btn-outline-secondary" name="toggle_reward"><?= $r['is_active'] ? 'ปิด' : 'เปิดป' ?></button><?php endif; ?>
     </div>

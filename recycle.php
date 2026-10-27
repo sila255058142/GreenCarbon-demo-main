@@ -56,8 +56,10 @@ head('รีไซเคิล');
           <option value="<?= $c['id'] ?>" data-factor="<?= e($c['co2_per_kg']) ?>"><?= e($c['name']) ?> (ลด <?= $c['co2_per_kg'] ?> kgCO₂e ต่อ กก.)</option>
         <?php endforeach; ?>
       </select>
-      <?php input('รายการ', 'item_name', 'text', '', 'required minlength="3"') ?>
-      <?php input('น้ำหนักโดยประมาณ (กก.)', 'weight_kg', 'number', '', 'required min="0.01" step="0.01" id="recycle-weight"') ?>
+      <label class="form-label mt-2">รายการ</label>
+      <input class="form-control" type="text" name="item_name" value="" required minlength="3">
+      <label class="form-label mt-2">น้ำหนักโดยประมาณ (กก.)</label>
+      <input class="form-control" type="number" name="weight_kg" value="" required min="0.01" step="0.01" id="recycle-weight">
       <label class="form-label mt-2">ประเภทการขนส่ง</label>
       <select class="form-select" name="delivery_type" required>
         <option value="">เลือกประเภทการขนส่ง</option>
@@ -67,7 +69,8 @@ head('รีไซเคิล');
       <label class="form-label mt-2">ที่อยู่สำหรับรับ/ส่ง</label>
       <textarea class="form-control" name="address" rows="3" maxlength="500" required></textarea>
       <div id="recycle-estimate" class="form-text text-success mb-3" aria-live="polite">เลือกหมวดและกรอกน้ำหนักเพื่อดูปริมาณคาร์บอนที่คาดว่าจะลดได้</div>
-      <?php input('รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)', 'image', 'file', '', 'accept="image/*"') ?>
+      <label class="form-label mt-2">รูปสินค้า (ไม่บังคับ JPG PNG GIF ไม่เกิน 2MB)</label>
+      <input class="form-control" type="file" name="image" value="" accept="image/*">
       <button class="btn btn-success mt-3 px-4">ส่งคำขอ</button>
     </div>
   </div>

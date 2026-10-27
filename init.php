@@ -50,7 +50,7 @@ function check_user($id = 0) {
 function check_pass() {
     return strlen(p('password')) < 8 ? 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร' : (p('password') !== p('password2') ? 'ยืนยันรหัสผ่านไม่ตรงกัน' : '');
 }
-function input($label, $name, $type = 'text', $value = '', $attr = 'required') { echo "<label class='form-label mt-2'>$label</label><input class='form-control' type='$type' name='$name' value='" . e($value) . "' $attr>"; }
+function input($type = 'text') { echo "<input class='form-control' type='" . e($type) . "'>"; }
 function level($points) {
     $lv = '';
     foreach (LEVELS as $min => $name) if ($points >= $min) $lv = $name;
