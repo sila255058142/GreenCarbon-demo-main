@@ -38,27 +38,51 @@ $options = '<option value="">ทุกสถานะ</option>';
 foreach (['pending', 'done', 'rejected'] as $s) $options .= "<option value='$s'" . (g('status') == $s ? ' selected' : '') . '>' . STATUS[$s] . '</option>';
 
 head('จัดการรีไซเคิล');
-search("<select class='form-select w-auto' name='status'>$options</select>");
+
 ?>
 <div class="table-responsive">
-<table class="table table-striped bg-white align-middle">
-  <tr><th>รูป</th><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>ขนส่ง</th><th>ที่อยู่</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
+<table id="recycleTable" class="table table-striped bg-white align-middle">
+  <thead>
+    <tr><th>รูป</th><th>วันที่</th><th>สมาชิก</th><th>รายการ</th><th>หมวด</th><th>กก.</th><th>ขนส่ง</th><th>ที่อยู่</th><th>สถานะ</th><th>แต้ม</th><th>CO₂e ที่ลด</th><th>ตรวจรับ</th></tr>
+  </thead>
+  <tbody>
   <?php foreach ($rows as $r): ?>
     <tr>
-      <td><?= $r['image'] ? '<a href="../uploads/' . e($r['image']) . '" target="_blank" rel="noopener"><img src="../uploads/' . e($r['image']) . '" alt="รูปสินค้า" style="max-width:70px;max-height:56px;object-fit:cover"></a>' : '-' ?></td>
-      <td><?= dt($r['created_at']) ?></td><td><?= e($r['member']) ?></td><td><?= e($r['item_name']) ?></td><td><?= e($r['category']) ?></td>
-      <td><?= $r['weight_kg'] ?></td><td><?= $r['delivery_type'] == 'pickup' ? 'นัดรับที่บ้าน' : 'นำส่งเอง' ?></td><td><?= nl2br(e($r['address'])) ?></td>
-      <td><?= STATUS[$r['status']] ?></td><td><?= $r['points'] ?></td><td><?= $r['co2_kg'] ?></td>
+      <td>
+        <?php if ($r['image']): ?>
+          <a href="../uploads/<?= e($r['image']) ?>" target="_blank" rel="noopener">
+            <img src="../uploads/<?= e($r['image']) ?>" alt="รูปสินค้า" style="max-width:70px;max-height:56px;object-fit:cover">
+          </a>
+        <?php else: ?>
+          -
+        <?php endif; ?>
+      </td>
+      <td data-order="<?= strtotime($r['created_at']) ?>"><?= dt($r['created_at']) ?></td>
+      <td><?= e($r['member']) ?></td>
+      <td><?= e($r['item_name']) ?></td>
+      <td><?= e($r['category']) ?></td>
+      <td><?= e($r['weight_kg']) ?></td>
+      <td><?= $r['delivery_type'] == 'pickup' ? 'นัดรับที่บ้าน' : 'นำส่งเอง' ?></td>
+      <td><?= nl2br(e($r['address'])) ?></td>
+      <td><?= STATUS[$r['status']] ?></td>
+      <td><?= e($r['points']) ?></td>
+      <td><?= e($r['co2_kg']) ?></td>
       <td><?php if ($r['status'] == 'pending'): ?>
         <form method="post" class="d-flex gap-1">
-          <input type="hidden" name="id" value="<?= $r['id'] ?>">
-          <input class="form-control form-control-sm" style="width:80px" type="number" step="0.01" min="0.01" name="weight_kg" value="<?= $r['weight_kg'] ?>">
-          <button class="btn btn-sm btn-success">ตรวจรับ</button>
-          <button class="btn btn-sm btn-outline-danger" name="reject" onclick="return confirm('ปฏิเสธคำขอนี้?')">ปฏิเสธ</button>
+          <input type="hidden" name="id" value="<?= e($r['id']) ?>">
+          <input class="form-control form-control-sm" style="width:80px" type="number" step="0.01" min="0.01" name="weight_kg" value="<?= e($r['weight_kg']) ?>">
+          <button type="submit" class="btn btn-sm btn-success">ตรวจรับ</button>
+          <button type="submit" name="reject" class="btn btn-sm btn-outline-danger" onclick="return confirm('ปฏิเสธคำขอนี้?')">ปฏิเสธ</button>
         </form>
       <?php endif; ?></td>
     </tr>
   <?php endforeach; ?>
+  </tbody>
 </table>
 </div>
+<script>
+new DataTable('#recycleTable', {
+  order: []
+});
+</script>
 <?php foot() ?>

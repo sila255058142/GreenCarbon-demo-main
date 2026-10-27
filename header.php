@@ -11,7 +11,9 @@ function head($title, $show = true) {
     <base href="<?= UP ?>">
     <link rel="stylesheet" href="assets/bootstrap.min.css">
     <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/datatables.min.css">
     <script src="assets/chart.umd.js"></script>
+    <script src="assets/datatables.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark d-print-none">
