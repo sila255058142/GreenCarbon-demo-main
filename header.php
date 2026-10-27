@@ -11,6 +11,7 @@ function head($title, $show = true) {
     <link rel="stylesheet" href="assets/bootstrap.min.css">
     <link rel="stylesheet" href="assets/style.css">
     <script src="assets/chart.umd.js"></script>
+    <script src="assets/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark d-print-none">
