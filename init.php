@@ -42,6 +42,15 @@ function me() {
     return $u ??= (!empty($_SESSION['uid']) ? one("SELECT * FROM users WHERE id = ? AND status = 'active'", [$_SESSION['uid']]) : null);
 }
 
+function check_user($id = 0) {
+    if (!filter_var(p('email'), FILTER_VALIDATE_EMAIL)) return 'รูปแบบอีเมลไม่ถูกต้อง';
+    if (val('SELECT 1 FROM users WHERE email = ? AND id <> ?', [p('email'), $id])) return 'อีเมลนี้ถูกใช้สมัครแล้ว';
+    return preg_match('/^0\d{9}$/', p('phone')) ? '' : 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก ขึ้นต้นด้วย 0';
+}
+function check_pass() {
+    return strlen(p('password')) < 8 ? 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร' : (p('password') !== p('password2') ? 'ยืนยันรหัสผ่านไม่ตรงกัน' : '');
+}
+function input($label, $name, $type = 'text', $value = '', $attr = 'required') { echo "<label class='form-label mt-2'>$label</label><input class='form-control' type='$type' name='$name' value='" . e($value) . "' $attr>"; }
 function level($points) {
     $lv = '';
     foreach (LEVELS as $min => $name) if ($points >= $min) $lv = $name;
@@ -54,7 +63,6 @@ function inbox() { return me()['role'] === 'admin' ? null : me()['id']; }
 
 // UI Components
 function search($extra = '') { echo "<form class='d-flex flex-wrap gap-2 mb-3 d-print-none'>$extra<input class='form-control w-auto' name='q' value='" . e(g('q')) . "' placeholder='ค้นหา...'><button class='btn btn-success'>ค้นหา</button></form>"; }
-function input($label, $name, $type = 'text', $value = '', $attr = 'required') { echo "<label class='form-label mt-2'>$label</label><input class='form-control' type='$type' name='$name' value='" . e($value) . "' $attr>"; }
 function question($selected = '') {
     echo "<label class='form-label mt-2'>คำถามกันลืมรหัสผ่าน</label><select class='form-select' name='question' required><option value=''>เลือกคำถาม</option>";
     foreach (QUESTIONS as $t) echo "<option" . ($t == $selected ? ' selected' : '') . ">$t</option>";
@@ -68,14 +76,6 @@ function chart($title, $type, $labels, $data) {
 }
 
 // Validation & Upload
-function check_user($id = 0) {
-    if (!filter_var(p('email'), FILTER_VALIDATE_EMAIL)) return 'รูปแบบอีเมลไม่ถูกต้อง';
-    if (val('SELECT 1 FROM users WHERE email = ? AND id <> ?', [p('email'), $id])) return 'อีเมลนี้ถูกใช้สมัครแล้ว';
-    return preg_match('/^0\d{9}$/', p('phone')) ? '' : 'เบอร์โทรต้องเป็นตัวเลข 10 หลัก ขึ้นต้นด้วย 0';
-}
-function check_pass() {
-    return strlen(p('password')) < 8 ? 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร' : (p('password') !== p('password2') ? 'ยืนยันรหัสผ่านไม่ตรงกัน' : '');
-}
 function upload($field) {
     $file = $_FILES[$field] ?? null;
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
