@@ -3,7 +3,6 @@ require 'init.php';
 
 if ($_POST) {
     $err = check_user() ?: check_pass();
-    if (!$err && (!in_array(p('question'), QUESTIONS) || mb_strlen(p('answer')) < 2)) $err = 'กรุณาเลือกคำถามกันลืมรหัสผ่าน และกรอกคำตอบ';
     if (!$err) {
         q('INSERT INTO users (name, email, phone, password, question, answer) VALUES (?, ?, ?, ?, ?, ?)',
             [p('name'), p('email'), p('phone'), password_hash(p('password'), PASSWORD_DEFAULT), p('question'), password_hash(p('answer'), PASSWORD_DEFAULT)]);
@@ -26,6 +25,6 @@ head('สมัครสมาชิก');
   <?php input('ยืนยันรหัสผ่าน', 'password2', 'password') ?>
   <?php question(p('question')) ?>
   <?php input('คำตอบ (ใช้ตั้งรหัสผ่านใหม่เมื่อลืม)', 'answer', 'text', p('answer')) ?>
-  <button class="btn btn-success mt-3">สมัครสมาชิก</button>
+  <button type="submit" name="submit" class="btn btn-success mt-3">สมัครสมาชิก</button>
 </form>
 <?php foot() ?>
