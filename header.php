@@ -45,10 +45,10 @@ function head($title, $show = true) {
                         <a class="nav-link" href="register.php">สมัครสมาชิก</a>
                     <?php else: ?>
                         <a class="nav-link" href="notifications.php">
-                            🔔 <span class="badge bg-danger"><?= val('SELECT COUNT(*) FROM notifications WHERE is_read = 0 AND user_id <=> ?', [inbox()]) ?></span>
+                            🔔 <span class="badge bg-danger"><?= notification_count() ?></span>
                         </a>
                         <span class="navbar-text text-white mx-2">
-                            <?= e($u['name']) ?>
+                            <?= htmlspecialchars(($u['name']) ?? '', ENT_QUOTES, 'UTF-8') ?>
                         </span>
                         <a class="nav-link" href="logout.php">ออกจากระบบ</a>
                     <?php endif; ?>
@@ -59,7 +59,7 @@ function head($title, $show = true) {
     <main class="container py-4">
         <?php if (isset($_SESSION['flash'])): ?>
             <div class="alert alert-<?= $_SESSION['flash'][1] ?>">
-                <?= e($_SESSION['flash'][0]) ?>
+                <?= htmlspecialchars(($_SESSION['flash'][0]) ?? '', ENT_QUOTES, 'UTF-8') ?>
             </div>
             <?php unset($_SESSION['flash']); ?>
         <?php endif; ?>

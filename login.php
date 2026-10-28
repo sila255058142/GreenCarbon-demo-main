@@ -1,14 +1,6 @@
 <?php
 require 'init.php';
-
-if ($_POST) {
-    $u = one('SELECT * FROM users WHERE email = ?', [p('email')]);
-    if (!$u || !password_verify(p('password'), $u['password'])) go('login.php', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'danger');
-    session_regenerate_id(true);
-    $_SESSION['uid'] = $u['id'];
-    go($u['role'] == 'admin' ? 'admin/index.php' : 'index.php', 'ยินดีต้อนรับ ' . $u['name']);
-}
-
+require __DIR__ . '/controllers/login.php';
 head('เข้าสู่ระบบ');
 ?>
 <form method="post" class="card card-body mx-auto" style="max-width:420px">

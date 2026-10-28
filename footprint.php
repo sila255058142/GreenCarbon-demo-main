@@ -1,3 +1,3 @@
 <?php
 require 'init.php';
-go('recycle.php');
+require __DIR__ . '/controllers/footprint.php';

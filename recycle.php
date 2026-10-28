@@ -1,30 +1,7 @@
 <?php
 // แจ้งรีไซเคิลขยะอิเล็กทรอนิกส์และติดตามสถานะคำขอ
 require 'init.php';
-$u = need_login();
-$cats = all('SELECT * FROM categories ORDER BY id');
-
-if ($_POST) {
-    $category = one('SELECT * FROM categories WHERE id = ?', [p('category_id')]);
-    $weight = (float) p('weight_kg');
-    $delivery = p('delivery_type');
-    $address = p('address');
-    if (mb_strlen(p('item_name')) < 3 || $weight <= 0 || !$category
-        || !in_array($delivery, ['self', 'pickup'], true) || !$address || mb_strlen($address) > 500) {
-        go('recycle.php', 'กรุณาตรวจสอบข้อมูลอุปกรณ์ ประเภทการขนส่ง และที่อยู่', 'danger');
-    }
-    $image = upload('image');
-    if (!$image && bad_upload('image')) go('recycle.php', bad_upload('image'), 'danger');
-    $estimatedCo2 = $weight * $category['co2_per_kg'];
-    q('INSERT INTO recycles (user_id, category_id, item_name, weight_kg, image, delivery_type, address) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [$u['id'], p('category_id'), p('item_name'), $weight, $image, $delivery, $address]);
-    notify(null, 'คำขอรีไซเคิลใหม่', $u['name'] . ': ' . p('item_name'), 'admin/recycles.php?status=pending');
-    go('recycle.php#recycle-form', 'ส่งคำขอแล้ว คาดว่าจะลดคาร์บอนได้ ' . number_format($estimatedCo2, 2) . ' kgCO₂e (ยืนยันผลจริงเมื่อผู้ดูแลตรวจรับ) คุณจะได้ ' . POINT_PER_KG . ' แต้มต่อ 1 กก.');
-}
-
-$year = date('Y');
-$saved = val("SELECT COALESCE(SUM(co2_kg), 0) FROM recycles WHERE user_id = ? AND status = 'done' AND YEAR(created_at) = ?", [$u['id'], $year]);
-
+require __DIR__ . '/controllers/recycle.php';
 head('รีไซเคิล');
 ?>
 <div class="hero mb-4 d-flex justify-content-between align-items-center">
@@ -44,7 +21,7 @@ head('รีไซเคิล');
       <span class="small fw-bold text-uppercase mb-1" style="color:#198754">Give it a new life</span>
       <h2 class="h4 fw-bold" style="color:#14532d">เริ่มต้นจากของชิ้นเล็ก ๆ</h2>
       <p style="color:#3f6b52">แจ้งข้อมูลอุปกรณ์และน้ำหนักโดยประมาณ ทีมงานจะตรวจสอบก่อนยืนยันผลการรีไซเคิล</p>
-      <div class="rounded-3 px-3 py-2 bg-white fw-semibold" style="color:#14532d; border:1px solid #b7dfc7">✨ รับ <?= POINT_PER_KG ?> แต้มต่อขยะที่รีไซเคิลสำเร็จ 1 กก.</div>
+      <div class="rounded-3 px-3 py-2 bg-white fw-semibold" style="color:#14532d; border:1px solid #b7dfc7">✨ รับ 20 แต้มต่อขยะที่รีไซเคิลสำเร็จ 1 กก.</div>
     </aside>
     <div class="col-md-8 p-4">
       <h5 class="fw-bold mb-1" id="recycle-form">แจ้งรายการรีไซเคิล</h5>
@@ -53,7 +30,7 @@ head('รีไซเคิล');
       <select class="form-select mb-3" id="recycle-category" name="category_id" required>
         <option value="">เลือกหมวด</option>
         <?php foreach ($cats as $c): ?>
-          <option value="<?= $c['id'] ?>" data-factor="<?= e($c['co2_per_kg']) ?>"><?= e($c['name']) ?> (ลด <?= $c['co2_per_kg'] ?> kgCO₂e ต่อ กก.)</option>
+          <option value="<?= $c['id'] ?>" data-factor="<?= htmlspecialchars(($c['co2_per_kg']) ?? '', ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars(($c['name']) ?? '', ENT_QUOTES, 'UTF-8') ?> (ลด <?= $c['co2_per_kg'] ?> kgCO₂e ต่อ กก.)</option>
         <?php endforeach; ?>
       </select>
       <label class="form-label mt-2">รายการ</label>

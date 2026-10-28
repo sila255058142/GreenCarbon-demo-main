@@ -1,28 +1,21 @@
 <?php
 // แต้มสะสม ระดับสมาชิก และอันดับ (กลไกสร้างแรงจูงใจ)
 require 'init.php';
-$u = need_login();
-
-$sum = one("SELECT COUNT(*) AS n, COALESCE(SUM(co2_kg), 0) AS co2 FROM recycles WHERE status = 'done' AND user_id = ?", [$u['id']]);
-$top = all("SELECT id, name, points FROM users WHERE role = 'user' AND status = 'active' ORDER BY points DESC LIMIT 5");
-$medals = ['🥇', '🥈', '🥉', '4', '5'];
-$next = 0;
-foreach (LEVELS as $min => $name) if (!$next && $min > $u['points']) $next = $min;
-
+require __DIR__ . '/controllers/points.php';
 head('แต้มของฉัน', false);
 ?>
 <div class="hero text-center mb-4">
   <div class="fs-1" aria-hidden="true">👤</div>
-  <div class="fs-1 lh-sm"><?= level($u['points']) ?></div>
-  <p class="lead"><?= $u['points'] ?> แต้ม<?= $next ? ' · อีก ' . ($next - $u['points']) . ' แต้ม จะเลื่อนเป็น ' . LEVELS[$next] : ' · ระดับสูงสุดแล้ว' ?></p>
+  <div class="fs-1 lh-sm"><?= $currentLevel ?></div>
+  <p class="lead"><?= $u['points'] ?> แต้ม<?= $next ? ' · อีก ' . ($next - $u['points']) . ' แต้ม จะเลื่อนเป็น ' . $nextLevel : ' · ระดับสูงสุดแล้ว' ?></p>
   <?php if ($next): ?>
     <div class="progress"><div class="progress-bar bg-warning" style="width:<?= round($u['points'] / $next * 100) ?>%"></div></div>
   <?php endif; ?>
 </div>
 <div class="row justify-content-center">
-  <?php box('✅ รีไซเคิลสำเร็จ', $sum['n'] . ' ครั้ง') ?>
-  <?php box('🌍 คาร์บอนที่ลดได้', $sum['co2'] . ' kgCO₂e') ?>
-  <?php box('🌳 เทียบเท่าต้นไม้', round($sum['co2'] / TREE_KG, 1) . ' ต้น') ?>
+  <div class="col-6 col-lg-3"><div class="card card-body box text-center mb-3"><small class="text-muted">✅ รีไซเคิลสำเร็จ</small><h4 class="text-success mb-0"><?= $sum['n'] ?> ครั้ง</h4></div></div>
+  <div class="col-6 col-lg-3"><div class="card card-body box text-center mb-3"><small class="text-muted">🌍 คาร์บอนที่ลดได้</small><h4 class="text-success mb-0"><?= $sum['co2'] ?> kgCO₂e</h4></div></div>
+  <div class="col-6 col-lg-3"><div class="card card-body box text-center mb-3"><small class="text-muted">🌳 เทียบเท่าต้นไม้</small><h4 class="text-success mb-0"><?= round($sum['co2'] / 9.5, 1) ?> ต้น</h4></div></div>
 </div>
 <div class="row">
   <div class="col-lg-6">
@@ -30,7 +23,8 @@ head('แต้มของฉัน', false);
       <h5>🏅 อันดับสมาชิกแต้มสูงสุด</h5>
       <table class="table mb-0">
         <?php foreach ($top as $i => $t): ?>
-          <tr class="<?= $t['id'] == $u['id'] ? 'table-success' : '' ?>"><td><?= $medals[$i] ?></td><td><?= e($t['name']) ?></td><td><?= level($t['points']) ?></td><td class="text-end"><?= $t['points'] ?> แต้ม</td></tr>
+          <?php $memberLevel = $t['points'] >= 600 ? '🌍 Net Zero Hero' : ($t['points'] >= 300 ? '🌳 ต้นไม้' : ($t['points'] >= 100 ? '🌱 ต้นกล้า' : '🌰 เมล็ดพันธุ์')); ?>
+          <tr class="<?= $t['id'] == $u['id'] ? 'table-success' : '' ?>"><td><?= $medals[$i] ?></td><td><?= htmlspecialchars(($t['name']) ?? '', ENT_QUOTES, 'UTF-8') ?></td><td><?= $memberLevel ?></td><td class="text-end"><?= $t['points'] ?> แต้ม</td></tr>
         <?php endforeach; ?>
       </table>
     </div>
@@ -39,7 +33,7 @@ head('แต้มของฉัน', false);
     <div class="card card-body mb-3">
       <h5>✨ วิธีรับแต้ม</h5>
       <table class="table mb-0">
-        <tr><td><a href="recycle.php">♻️ รีไซเคิลขยะอิเล็กทรอนิกส์ 1 กก.</a></td><td class="text-end">+<?= POINT_PER_KG ?></td></tr>
+        <tr><td><a href="recycle.php">♻️ รีไซเคิลขยะอิเล็กทรอนิกส์ 1 กก.</a></td><td class="text-end">+20</td></tr>
       </table>
       <a class="btn btn-success mt-3" href="coupons.php">🎟️ ใช้แต้มแลกคูปอง</a>
     </div>

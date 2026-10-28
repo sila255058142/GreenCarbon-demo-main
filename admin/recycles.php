@@ -1,44 +1,7 @@
 <?php
-// จัดการรีไซเคิล: ตรวจรับด้วยน้ำหนักที่ชั่งจริง (ให้แต้ม + บันทึกคาร์บอนที่ลดได้) หรือปฏิเสธ แล้วแจ้งเตือนสมาชิก
 require '../init.php';
-need_admin();
-
-if ($_POST) {
-    $db->begin_transaction();
-    $r = one("SELECT r.*, c.co2_per_kg FROM recycles r JOIN categories c ON c.id = r.category_id WHERE r.id = ? AND r.status = 'pending' FOR UPDATE", [p('id')]);
-    if (!$r) {
-        $db->rollback();
-        go('recycles.php', 'ทำรายการไม่ได้', 'danger');
-    }
-    if (isset($_POST['reject'])) {
-        q("UPDATE recycles SET status = 'rejected' WHERE id = ?", [$r['id']]);
-        $db->commit();
-        notify($r['user_id'], 'คำขอรีไซเคิลถูกปฏิเสธ', $r['item_name'], 'recycle.php');
-        go('recycles.php', 'ปฏิเสธคำขอแล้ว', 'warning');
-    }
-    $kg = (float) p('weight_kg');
-    if ($kg <= 0) {
-        $db->rollback();
-        go('recycles.php', 'กรุณาตรวจสอบน้ำหนัก', 'danger');
-    }
-    $points = round($kg * POINT_PER_KG);
-    q("UPDATE recycles SET status = 'done', weight_kg = ?, points = ?, co2_kg = ? WHERE id = ?", [$kg, $points, $kg * $r['co2_per_kg'], $r['id']]);
-    q('UPDATE users SET points = points + ? WHERE id = ?', [$points, $r['user_id']]);
-    q("INSERT INTO point_transactions (user_id, amount, description, related_type, related_id) VALUES (?, ?, ?, 'recycle', ?)",
-        [$r['user_id'], $points, 'แต้มจากรีไซเคิล: ' . $r['item_name'], $r['id']]);
-    $db->commit();
-    notify($r['user_id'], 'รีไซเคิลสำเร็จ รับ ' . $points . ' แต้ม', $r['item_name'] . ' ลดคาร์บอนได้ ' . $kg * $r['co2_per_kg'] . ' kgCO₂e', 'points.php');
-    go('recycles.php', "ตรวจรับแล้ว สมาชิกได้รับ $points แต้ม");
-}
-
-$rows = all("SELECT r.*, c.name AS category, u.name AS member FROM recycles r JOIN categories c ON c.id = r.category_id JOIN users u ON u.id = r.user_id
-    WHERE (r.item_name LIKE ? OR u.name LIKE ?) AND (? = '' OR r.status = ?) ORDER BY r.status = 'pending' DESC, r.id DESC", [like(), like(), g('status'), g('status')]);
-
-$options = '<option value="">ทุกสถานะ</option>';
-foreach (['pending', 'done', 'rejected'] as $s) $options .= "<option value='$s'" . (g('status') == $s ? ' selected' : '') . '>' . STATUS[$s] . '</option>';
-
+require __DIR__ . '/../controllers/admin_recycles.php';
 head('จัดการรีไซเคิล');
-
 ?>
 <div class="table-responsive">
 <table id="recycleTable" class="table table-striped bg-white align-middle">
@@ -50,27 +13,27 @@ head('จัดการรีไซเคิล');
     <tr>
       <td>
         <?php if ($r['image']): ?>
-          <a href="../uploads/<?= e($r['image']) ?>" target="_blank" rel="noopener">
-            <img src="../uploads/<?= e($r['image']) ?>" alt="รูปสินค้า" style="max-width:70px;max-height:56px;object-fit:cover">
+          <a href="../uploads/<?= htmlspecialchars(($r['image']) ?? '', ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+            <img src="../uploads/<?= htmlspecialchars(($r['image']) ?? '', ENT_QUOTES, 'UTF-8') ?>" alt="รูปสินค้า" style="max-width:70px;max-height:56px;object-fit:cover">
           </a>
         <?php else: ?>
           -
         <?php endif; ?>
       </td>
-      <td data-order="<?= strtotime($r['created_at']) ?>"><?= dt($r['created_at']) ?></td>
-      <td><?= e($r['member']) ?></td>
-      <td><?= e($r['item_name']) ?></td>
-      <td><?= e($r['category']) ?></td>
-      <td><?= e($r['weight_kg']) ?></td>
+      <td data-order="<?= strtotime($r['created_at']) ?>"><?= ($r['created_at'] ? date('d/m/Y H:i', strtotime($r['created_at'])) : '-') ?></td>
+      <td><?= htmlspecialchars(($r['member']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+      <td><?= htmlspecialchars(($r['item_name']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+      <td><?= htmlspecialchars(($r['category']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+      <td><?= htmlspecialchars(($r['weight_kg']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
       <td><?= $r['delivery_type'] == 'pickup' ? 'นัดรับที่บ้าน' : 'นำส่งเอง' ?></td>
-      <td><?= nl2br(e($r['address'])) ?></td>
-      <td><?= STATUS[$r['status']] ?></td>
-      <td><?= e($r['points']) ?></td>
-      <td><?= e($r['co2_kg']) ?></td>
+      <td><?= nl2br(htmlspecialchars(($r['address']) ?? '', ENT_QUOTES, 'UTF-8')) ?></td>
+      <td><?= $r['status'] === 'pending' ? 'รอตรวจรับ' : ($r['status'] === 'done' ? 'สำเร็จ' : 'ปฏิเสธ') ?></td>
+      <td><?= htmlspecialchars(($r['points']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+      <td><?= htmlspecialchars(($r['co2_kg']) ?? '', ENT_QUOTES, 'UTF-8') ?></td>
       <td><?php if ($r['status'] == 'pending'): ?>
         <form method="post" class="d-flex gap-1">
-          <input type="hidden" name="id" value="<?= e($r['id']) ?>">
-          <input class="form-control form-control-sm" style="width:80px" type="number" step="0.01" min="0.01" name="weight_kg" value="<?= e($r['weight_kg']) ?>">
+          <input type="hidden" name="id" value="<?= htmlspecialchars(($r['id']) ?? '', ENT_QUOTES, 'UTF-8') ?>">
+          <input class="form-control form-control-sm" style="width:80px" type="number" step="0.01" min="0.01" name="weight_kg" value="<?= htmlspecialchars(($r['weight_kg']) ?? '', ENT_QUOTES, 'UTF-8') ?>">
           <button type="submit" class="btn btn-sm btn-success">ตรวจรับ</button>
           <button type="submit" name="reject" class="btn btn-sm btn-outline-danger" onclick="return confirm('ปฏิเสธคำขอนี้?')">ปฏิเสธ</button>
         </form>

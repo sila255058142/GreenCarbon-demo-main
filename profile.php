@@ -1,31 +1,18 @@
 <?php
 require 'init.php';
-$u = need_login();
-
-if (isset($_POST['save'])) {
-    if ($err = check_user($u['id'])) go('profile.php', $err, 'danger');
-    q('UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?', [p('name'), p('email'), p('phone'), $u['id']]);
-    go('profile.php', 'บันทึกโปรไฟล์แล้ว');
-}
-if (isset($_POST['change'])) {
-    if (!password_verify(p('current'), $u['password'])) go('profile.php', 'รหัสผ่านปัจจุบันไม่ถูกต้อง', 'danger');
-    if ($err = check_pass()) go('profile.php', $err, 'danger');
-    q('UPDATE users SET password = ? WHERE id = ?', [password_hash(p('password'), PASSWORD_DEFAULT), $u['id']]);
-    go('profile.php', 'เปลี่ยนรหัสผ่านแล้ว');
-}
-
+require __DIR__ . '/controllers/profile.php';
 head('โปรไฟล์ของฉัน');
 ?>
 <div class="row">
   <div class="col-lg-6">
     <form method="post" class="card card-body mb-3">
-      <div class="text-center"><div class="fs-1">👤</div><div class="mt-2"><?= level($u['points']) ?> · <?= $u['points'] ?> แต้ม</div></div>
+      <div class="text-center"><div class="fs-1">👤</div><div class="mt-2"><?= $currentLevel ?> · <?= $u['points'] ?> แต้ม</div></div>
       <label class="form-label mt-2">ชื่อ-นามสกุล</label>
-      <input class="form-control" type="text" name="name" value="<?= e($u['name']) ?>" required>
+      <input class="form-control" type="text" name="name" value="<?= htmlspecialchars(($u['name']) ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
       <label class="form-label mt-2">อีเมล</label>
-      <input class="form-control" type="email" name="email" value="<?= e($u['email']) ?>" required>
+      <input class="form-control" type="email" name="email" value="<?= htmlspecialchars(($u['email']) ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
       <label class="form-label mt-2">เบอร์โทรศัพท์ (ตัวเลข 10 หลัก)</label>
-      <input class="form-control" type="text" name="phone" value="<?= e($u['phone']) ?>" required pattern="0[0-9]{9}" maxlength="10" inputmode="numeric" title="ตัวเลข 10 หลัก ขึ้นต้นด้วย 0">
+      <input class="form-control" type="text" name="phone" value="<?= htmlspecialchars(($u['phone']) ?? '', ENT_QUOTES, 'UTF-8') ?>" required pattern="0[0-9]{9}" maxlength="10" inputmode="numeric" title="ตัวเลข 10 หลัก ขึ้นต้นด้วย 0">
       <button class="btn btn-success mt-3" name="save">บันทึก</button>
     </form>
   </div>

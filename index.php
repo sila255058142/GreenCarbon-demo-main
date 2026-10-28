@@ -1,25 +1,12 @@
 <?php
-// หน้าแรก: ส่วนต้อนรับ ขั้นตอนการใช้งาน ภาพรวมผลกระทบ และข่าวสารที่อยู่ในช่วงเวลาแสดงผล
 require 'init.php';
-$u = me();
-if ($u && $u['role'] == 'admin') go('admin/index.php');
-
-$news = all('SELECT * FROM contents WHERE start_at <= NOW() AND (end_at IS NULL OR end_at > NOW()) ORDER BY start_at DESC');
-$featuredNews = $news ? array_shift($news) : null;
-$sum = one("SELECT COUNT(*) AS n, COALESCE(SUM(weight_kg), 0) AS kg, COALESCE(SUM(co2_kg), 0) AS co2 FROM recycles WHERE status = 'done'");
-$memberCount = val("SELECT COUNT(*) FROM users WHERE role = 'user'");
-$steps = [
-    ['📦', '1. แจ้งรายการ', 'เลือกหมวดและกรอกข้อมูลอุปกรณ์ที่ต้องการส่งรีไซเคิล', 'recycle.php#recycle-form'],
-    ['🔎', '2. รอตรวจรับ', 'ทีมงานตรวจสอบข้อมูลและยืนยันรายการรีไซเคิล', 'recycle.php'],
-    ['🏆', '3. รับแต้มและเติบโต', 'เมื่อรายการสำเร็จ รับแต้มสะสมเพื่อแลกของรางวัล', 'points.php'],
-];
-  
+require __DIR__ . '/controllers/home.php';
 head('หน้าแรก', false);
 ?>
 <div class="hero mb-4">
   <?php if ($u): ?>
-    <h1>สวัสดี <?= e($u['name']) ?> 👋</h1>
-    <p class="lead">ระดับ <?= level($u['points']) ?> · สะสมแล้ว <?= $u['points'] ?> แต้ม</p>
+    <h1>สวัสดี <?= htmlspecialchars(($u['name']) ?? '', ENT_QUOTES, 'UTF-8') ?> 👋</h1>
+    <p class="lead">ระดับ <?= $userLevel ?> · สะสมแล้ว <?= $u['points'] ?> แต้ม</p>
     <a class="btn btn-light" href="recycle.php#recycle-form">♻️ เริ่มรีไซเคิล</a>
     <a class="btn btn-outline-light" href="points.php">🏆 ดูแต้มสะสม</a>
   <?php else: ?>
@@ -80,21 +67,34 @@ head('หน้าแรก', false);
     <p>GreenLoop ช่วยให้การจัดการขยะอิเล็กทรอนิกส์เป็นเรื่องง่าย ตรวจสอบได้ และมีแรงจูงใจ</p>
   </div>
   <div class="row g-3">
-    <?php foreach ($steps as $index => $s): ?>
-      <div class="col-md-4">
-        <a class="card journey-card h-100 p-4 text-decoration-none" href="<?= $s[3] ?>">
-          <div class="journey-card-top d-flex align-items-center justify-content-between gap-3">
-            <span class="journey-icon fs-3"><?= $s[0] ?></span>
-            <span class="journey-number">0<?= $index + 1 ?></span>
-          </div>
-          <h3><?= $s[1] ?></h3>
-          <p><?= $s[2] ?></p>
-          <?php if ($index === 2): ?>
-            <span class="journey-reward">🎁 <?= POINT_PER_KG ?> แต้มต่อกิโลกรัมที่สำเร็จ</span>
-          <?php endif; ?>
-        </a>
-      </div>
-    <?php endforeach; ?>
+    <div class="col-md-4">
+      <a class="card journey-card h-100 p-4 text-decoration-none" href="recycle.php#recycle-form">
+        <div class="journey-card-top d-flex align-items-center justify-content-between gap-3">
+          <span class="journey-icon fs-3">📦</span><span class="journey-number">01</span>
+        </div>
+        <h3>1. แจ้งรายการ</h3>
+        <p>เลือกหมวดและกรอกข้อมูลอุปกรณ์ที่ต้องการส่งรีไซเคิล</p>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a class="card journey-card h-100 p-4 text-decoration-none" href="recycle.php">
+        <div class="journey-card-top d-flex align-items-center justify-content-between gap-3">
+          <span class="journey-icon fs-3">🔎</span><span class="journey-number">02</span>
+        </div>
+        <h3>2. รอตรวจรับ</h3>
+        <p>ทีมงานตรวจสอบข้อมูลและยืนยันรายการรีไซเคิล</p>
+      </a>
+    </div>
+    <div class="col-md-4">
+      <a class="card journey-card h-100 p-4 text-decoration-none" href="points.php">
+        <div class="journey-card-top d-flex align-items-center justify-content-between gap-3">
+          <span class="journey-icon fs-3">🏆</span><span class="journey-number">03</span>
+        </div>
+        <h3>3. รับแต้มและเติบโต</h3>
+        <p>เมื่อรายการสำเร็จ รับแต้มสะสมเพื่อแลกของรางวัล</p>
+        <span class="journey-reward">🎁 20 แต้มต่อกิโลกรัมที่สำเร็จ</span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -134,9 +134,9 @@ head('หน้าแรก', false);
       </div>
       <div class="article-feature-content col-md-7 p-4 p-lg-5">
         <span class="article-label">เรื่องเด่น</span>
-        <h3><?= e($featuredNews['title']) ?></h3>
-        <p><?= nl2br(e($featuredNews['body'])) ?></p>
-        <small class="text-muted">📅 <?= dt($featuredNews['start_at']) ?></small>
+        <h3><?= htmlspecialchars(($featuredNews['title']) ?? '', ENT_QUOTES, 'UTF-8') ?></h3>
+        <p><?= nl2br(htmlspecialchars(($featuredNews['body']) ?? '', ENT_QUOTES, 'UTF-8')) ?></p>
+        <small class="text-muted">📅 <?= ($featuredNews['start_at'] ? date('d/m/Y H:i', strtotime($featuredNews['start_at'])) : '-') ?></small>
       </div>
     </article>
 
@@ -147,10 +147,10 @@ head('หน้าแรก', false);
             <article class="card article-card h-100 p-4 mb-3">
               <div class="article-card-top d-flex align-items-center justify-content-between gap-3">
                 <span class="article-card-icon fs-3"><?= $index % 2 === 0 ? '🌿' : '💡' ?></span>
-                <small class="text-muted"><?= dt($n['start_at']) ?></small>
+                <small class="text-muted"><?= ($n['start_at'] ? date('d/m/Y H:i', strtotime($n['start_at'])) : '-') ?></small>
               </div>
-              <h4><?= e($n['title']) ?></h4>
-              <p><?= nl2br(e($n['body'])) ?></p>
+              <h4><?= htmlspecialchars(($n['title']) ?? '', ENT_QUOTES, 'UTF-8') ?></h4>
+              <p><?= nl2br(htmlspecialchars(($n['body']) ?? '', ENT_QUOTES, 'UTF-8')) ?></p>
               <span class="article-read-label">GREENLOOP JOURNAL</span>
             </article>
           </div>

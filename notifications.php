@@ -1,26 +1,20 @@
 <?php
 // การแจ้งเตือนของผู้ใช้ปัจจุบัน (ใช้ร่วมกันทั้งสมาชิกและผู้ดูแลระบบ) เปิดหน้านี้แล้วถือว่าอ่านทั้งหมด
 require 'init.php';
-need_login();
-
-if ($_POST) {
-    q('DELETE FROM notifications WHERE id = ? AND user_id <=> ?', [p('id'), inbox()]);
-    go('notifications.php', 'ลบการแจ้งเตือนแล้ว');
-}
-
-$rows = all('SELECT * FROM notifications WHERE user_id <=> ? AND (title LIKE ? OR message LIKE ?) ORDER BY id DESC', [inbox(), like(), like()]);
-q('UPDATE notifications SET is_read = 1 WHERE user_id <=> ?', [inbox()]);
-
+require __DIR__ . '/controllers/notifications.php';
 head('การแจ้งเตือน');
-search();
 ?>
+<form method="get" class="d-flex flex-wrap gap-2 mb-3 d-print-none">
+  <input class="form-control w-auto" name="q" value="<?= htmlspecialchars((trim($_GET['q'] ?? '')) ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="ค้นหา...">
+  <button class="btn btn-success">ค้นหา</button>
+</form>
 <?php foreach ($rows as $r): ?>
   <div class="card card-body mb-2 <?= $r['is_read'] ? '' : 'border border-success' ?>">
     <form method="post" class="d-flex justify-content-between gap-2">
-      <div><b><?= e($r['title']) ?></b> <?= $r['is_read'] ? '' : '<span class="badge bg-danger">ใหม่</span>' ?><br><?= e($r['message']) ?><br><small class="text-muted"><?= dt($r['created_at']) ?></small></div>
+      <div><b><?= htmlspecialchars(($r['title']) ?? '', ENT_QUOTES, 'UTF-8') ?></b> <?= $r['is_read'] ? '' : '<span class="badge bg-danger">ใหม่</span>' ?><br><?= htmlspecialchars(($r['message']) ?? '', ENT_QUOTES, 'UTF-8') ?><br><small class="text-muted"><?= ($r['created_at'] ? date('d/m/Y H:i', strtotime($r['created_at'])) : '-') ?></small></div>
       <div class="text-nowrap">
         <input type="hidden" name="id" value="<?= $r['id'] ?>">
-        <?php if ($r['link']): ?><a class="btn btn-sm btn-success" href="<?= e($r['link']) ?>">เปิด</a><?php endif; ?>
+        <?php if ($r['link']): ?><a class="btn btn-sm btn-success" href="<?= htmlspecialchars(($r['link']) ?? '', ENT_QUOTES, 'UTF-8') ?>">เปิด</a><?php endif; ?>
         <button class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบการแจ้งเตือนนี้?')">ลบ</button>
       </div>
     </form>
