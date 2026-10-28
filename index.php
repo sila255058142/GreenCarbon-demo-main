@@ -6,7 +6,7 @@ head('หน้าแรก', false);
 <div class="hero mb-4">
   <?php if ($u): ?>
     <h1>สวัสดี <?= htmlspecialchars(($u['name']) ?? '', ENT_QUOTES, 'UTF-8') ?> 👋</h1>
-    <p class="lead">ระดับ <?= $userLevel ?> · สะสมแล้ว <?= $u['points'] ?> แต้ม</p>
+    <p class="lead">สะสมแล้ว <?= $u['points'] ?> แต้ม</p>
     <a class="btn btn-light" href="recycle.php#recycle-form">♻️ เริ่มรีไซเคิล</a>
     <a class="btn btn-outline-light" href="points.php">🏆 ดูแต้มสะสม</a>
   <?php else: ?>

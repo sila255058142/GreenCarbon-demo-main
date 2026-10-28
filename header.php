@@ -8,7 +8,7 @@ function head($title, $show = true) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $title ?> | GreenLoop</title>
-    <base href="<?= UP ?>">
+    <base href="<?= str_contains($_SERVER['SCRIPT_NAME'], '/admin/') ? '../' : '' ?>">
     <link rel="stylesheet" href="assets/bootstrap.min.css">
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="assets/datatables.min.css">
