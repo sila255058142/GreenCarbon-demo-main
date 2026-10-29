@@ -1,3 +1,6 @@
 <?php
 require 'init.php';
-require __DIR__ . '/controllers/logout.php';
+
+session_destroy();
+header('Location: index.php');
+exit;
