@@ -25,6 +25,7 @@ if ($_POST) {
     $sql = $id !== ''
         ? 'UPDATE contents SET title = ?, body = ?, start_at = ?, end_at = ? WHERE id = ?'
         : 'INSERT INTO contents (title, body, start_at, end_at, user_id) VALUES (?, ?, ?, ?, ?)';
+    $recordId = $id !== '' ? $id : $admin['id'];
     $stmt = $db->prepare($sql);
     $stmt->bind_param('sssss', $title, $body, $startAt, $endAt, $recordId);
     $stmt->execute();
