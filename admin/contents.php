@@ -35,7 +35,7 @@ head('จัดการเนื้อหา');
     <tr>
       <td><?= htmlspecialchars(($r['title']) ?? '', ENT_QUOTES, 'UTF-8') ?></td><td><?= ($r['start_at'] ? date('d/m/Y H:i', strtotime($r['start_at'])) : '-') ?></td><td><?= ($r['end_at'] ? date('d/m/Y H:i', strtotime($r['end_at'])) : '-') ?></td><td><?= $r['live'] ?></td>
       <td><form method="post"><input type="hidden" name="id" value="<?= $r['id'] ?>">
-        <a class="btn btn-sm btn-outline-success" href="?edit=<?= $r['id'] ?>">แก้ไข</a>
+        <a class="btn btn-sm btn-outline-success" href="admin/contents.php?edit=<?= $r['id'] ?>">แก้ไข</a>
         <button class="btn btn-sm btn-outline-danger" name="delete" onclick="return confirm('ลบเนื้อหานี้?')">ลบ</button></form></td>
     </tr>
   <?php endforeach; ?>
