@@ -1,6 +1,7 @@
 <?php
 require 'init.php';
 require __DIR__ . '/controllers/profile.php';
+$currentLevel = $u['points'] >= 600 ? '🌍 Net Zero Hero' : ($u['points'] >= 300 ? '🌳 ต้นไม้' : ($u['points'] >= 100 ? '🌱 ต้นกล้า' : '🌰 เมล็ดพันธุ์'));
 head('โปรไฟล์ของฉัน');
 ?>
 <div class="row">
