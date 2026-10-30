@@ -2,6 +2,11 @@
 // แต้มสะสม ระดับสมาชิก และอันดับ (กลไกสร้างแรงจูงใจ)
 require 'init.php';
 require __DIR__ . '/controllers/points.php';
+$medals = ['🥇', '🥈', '🥉', '4', '5'];
+$points = (int) $u['points'];
+$currentLevel = $points >= 600 ? '🌍 Net Zero Hero' : ($points >= 300 ? '🌳 ต้นไม้' : ($points >= 100 ? '🌱 ต้นกล้า' : '🌰 เมล็ดพันธุ์'));
+$next = $points >= 600 ? 0 : ($points >= 300 ? 600 : ($points >= 100 ? 300 : 100));
+$nextLevel = $points >= 300 ? '🌍 Net Zero Hero' : ($points >= 100 ? '🌳 ต้นไม้' : '🌱 ต้นกล้า');
 head('แต้มของฉัน', false);
 ?>
 <div class="hero text-center mb-4">
